@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ReactElement } from 'react'
+import { useEffect, useState, useRef, type FormEvent, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { checkNicknameAvailable, updateNickname } from '../../api/user'
 import { useAuthStore } from '../../stores/authStore'
@@ -11,17 +11,30 @@ export function OnboardingNicknamePage(): ReactElement {
   const [checking, setChecking] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const nicknameRef = useRef('')
 
   useEffect(() => {
+    nicknameRef.current = nickname
+
     if (!nickname) {
       setAvailable(null)
       return
     }
     setChecking(true)
+    setAvailable(null)
+    const nicknameToCheck = nickname
     const timer = setTimeout(() => {
-      checkNicknameAvailable(nickname)
-        .then((res) => setAvailable(res.available))
-        .catch(() => setAvailable(null))
+      checkNicknameAvailable(nicknameToCheck)
+        .then((res) => {
+          if (nicknameToCheck === nicknameRef.current) {
+            setAvailable(res.available)
+          }
+        })
+        .catch(() => {
+          if (nicknameToCheck === nicknameRef.current) {
+            setAvailable(null)
+          }
+        })
         .finally(() => setChecking(false))
     }, 400)
     return () => clearTimeout(timer)
@@ -63,7 +76,7 @@ export function OnboardingNicknamePage(): ReactElement {
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="submit"
-          disabled={!available || submitting}
+          disabled={!available || checking || submitting}
           className="w-64 rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
         >
           {submitting ? '저장 중...' : '완료'}
