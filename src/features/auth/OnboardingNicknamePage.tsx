@@ -15,6 +15,7 @@ export function OnboardingNicknamePage(): ReactElement {
 
   useEffect(() => {
     nicknameRef.current = nickname
+    setChecking(false)
 
     if (!nickname) {
       setAvailable(null)
@@ -35,7 +36,11 @@ export function OnboardingNicknamePage(): ReactElement {
             setAvailable(null)
           }
         })
-        .finally(() => setChecking(false))
+        .finally(() => {
+          if (nicknameToCheck === nicknameRef.current) {
+            setChecking(false)
+          }
+        })
     }, 400)
     return () => clearTimeout(timer)
   }, [nickname])

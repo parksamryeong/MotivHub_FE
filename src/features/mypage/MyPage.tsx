@@ -12,6 +12,8 @@ export function MyPage(): ReactElement {
   const clear = useAuthStore((state) => state.clear)
   const [isEditing, setIsEditing] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['mypage'],
@@ -28,9 +30,18 @@ export function MyPage(): ReactElement {
   }
 
   async function handleDelete() {
-    await deleteAccount()
-    clear()
-    navigate('/login', { replace: true })
+    if (deleting) return
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      await deleteAccount()
+      clear()
+      navigate('/login', { replace: true })
+    } catch {
+      setDeleteError('탈퇴 처리에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setDeleting(false)
+    }
   }
 
   if (isLoading) return <div className="p-8">로딩 중...</div>
@@ -90,9 +101,10 @@ export function MyPage(): ReactElement {
             <button
               type="button"
               onClick={handleDelete}
-              className="rounded bg-red-600 px-3 py-1 text-white"
+              disabled={deleting}
+              className="rounded bg-red-600 px-3 py-1 text-white disabled:opacity-50"
             >
-              탈퇴하기
+              {deleting ? '처리 중...' : '탈퇴하기'}
             </button>
             <button
               type="button"
@@ -102,6 +114,7 @@ export function MyPage(): ReactElement {
               취소
             </button>
           </div>
+          {deleteError && <p className="mt-2 text-sm text-red-600">{deleteError}</p>}
         </div>
       ) : (
         <button

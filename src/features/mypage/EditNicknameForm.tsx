@@ -20,6 +20,7 @@ export function EditNicknameForm({
 
   useEffect(() => {
     nicknameRef.current = nickname
+    setChecking(false)
 
     if (!nickname || nickname === currentNickname) {
       setAvailable(nickname === currentNickname ? true : null)
@@ -40,7 +41,11 @@ export function EditNicknameForm({
             setAvailable(null)
           }
         })
-        .finally(() => setChecking(false))
+        .finally(() => {
+          if (nicknameToCheck === nicknameRef.current) {
+            setChecking(false)
+          }
+        })
     }, 400)
     return () => clearTimeout(timer)
   }, [nickname, currentNickname])
