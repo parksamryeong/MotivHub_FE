@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { apiClient } from './client'
+import { useAuthStore } from '../stores/authStore'
 import type { AuthTokens, OAuthProvider } from './types'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string
@@ -11,7 +12,8 @@ export function exchangeCode(code: string): Promise<AuthTokens> {
 }
 
 export function logout(): Promise<void> {
-  return apiClient.post('/api/auth/logout').then(() => undefined)
+  const { refreshToken } = useAuthStore.getState()
+  return apiClient.post('/api/auth/logout', { refreshToken }).then(() => undefined)
 }
 
 export function oauthAuthorizeUrl(provider: OAuthProvider): string {
