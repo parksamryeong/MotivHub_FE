@@ -2,7 +2,6 @@ import { useState, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { fetchMyPage, deleteAccount } from '../../api/user'
-import { logout } from '../../api/auth'
 import { useAuthStore } from '../../stores/authStore'
 import { EditNicknameForm } from './EditNicknameForm'
 
@@ -19,15 +18,6 @@ export function MyPage(): ReactElement {
     queryKey: ['mypage'],
     queryFn: fetchMyPage,
   })
-
-  async function handleLogout() {
-    try {
-      await logout()
-    } finally {
-      clear()
-      navigate('/login', { replace: true })
-    }
-  }
 
   async function handleDelete() {
     if (deleting) return
@@ -89,10 +79,6 @@ export function MyPage(): ReactElement {
         <span className="text-sm text-gray-500">가입일</span>
         <p>{new Date(data.createdAt).toLocaleDateString()}</p>
       </div>
-
-      <button type="button" onClick={handleLogout} className="rounded border px-4 py-2">
-        로그아웃
-      </button>
 
       {showDeleteConfirm ? (
         <div className="rounded border border-red-300 p-3">

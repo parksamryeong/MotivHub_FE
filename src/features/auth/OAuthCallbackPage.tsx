@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { exchangeCode } from '../../api/auth'
 import { fetchMe } from '../../api/user'
 import { useAuthStore } from '../../stores/authStore'
+import { consumePendingInviteToken } from '../workspaces/pendingInvite'
 
 export function OAuthCallbackPage(): ReactElement {
   const [searchParams] = useSearchParams()
@@ -38,7 +39,12 @@ export function OAuthCallbackPage(): ReactElement {
       })
       .then((user) => {
         setUser(user)
-        navigate(user.nicknameConfigured ? '/mypage' : '/onboarding/nickname', {
+        if (!user.nicknameConfigured) {
+          navigate('/onboarding/nickname', { replace: true })
+          return
+        }
+        const pendingToken = consumePendingInviteToken()
+        navigate(pendingToken ? `/invites/${pendingToken}` : '/workspaces', {
           replace: true,
         })
       })

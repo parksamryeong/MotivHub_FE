@@ -3,6 +3,10 @@ import { LoginPage } from '../features/auth/LoginPage'
 import { OAuthCallbackPage } from '../features/auth/OAuthCallbackPage'
 import { OnboardingNicknamePage } from '../features/auth/OnboardingNicknamePage'
 import { MyPage } from '../features/mypage/MyPage'
+import { WorkspaceListPage } from '../features/workspaces/WorkspaceListPage'
+import { WorkspaceDetailPage } from '../features/workspaces/WorkspaceDetailPage'
+import { InviteAcceptPage } from '../features/workspaces/InviteAcceptPage'
+import { AppLayout } from '../layouts/AppLayout'
 import { ProtectedRoute } from './ProtectedRoute'
 
 export const router = createBrowserRouter([
@@ -16,20 +20,18 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  { path: '/invites/:token', element: <InviteAcceptPage /> },
   {
-    path: '/mypage',
     element: (
       <ProtectedRoute>
-        <MyPage />
+        <AppLayout />
       </ProtectedRoute>
     ),
-  },
-  {
-    path: '*',
-    element: (
-      <ProtectedRoute>
-        <Navigate to="/mypage" replace />
-      </ProtectedRoute>
-    ),
+    children: [
+      { path: '/mypage', element: <MyPage /> },
+      { path: '/workspaces', element: <WorkspaceListPage /> },
+      { path: '/workspaces/:id', element: <WorkspaceDetailPage /> },
+      { path: '*', element: <Navigate to="/workspaces" replace /> },
+    ],
   },
 ])

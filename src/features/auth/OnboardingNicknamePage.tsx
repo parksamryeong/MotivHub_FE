@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, type FormEvent, type ReactElement } from '
 import { useNavigate } from 'react-router-dom'
 import { checkNicknameAvailable, updateNickname } from '../../api/user'
 import { useAuthStore } from '../../stores/authStore'
+import { consumePendingInviteToken } from '../workspaces/pendingInvite'
 
 export function OnboardingNicknamePage(): ReactElement {
   const navigate = useNavigate()
@@ -53,7 +54,10 @@ export function OnboardingNicknamePage(): ReactElement {
     try {
       const user = await updateNickname(nickname)
       setUser(user)
-      navigate('/mypage', { replace: true })
+      const pendingToken = consumePendingInviteToken()
+      navigate(pendingToken ? `/invites/${pendingToken}` : '/workspaces', {
+        replace: true,
+      })
     } catch {
       setError('닉네임 설정에 실패했습니다. 다시 시도해주세요.')
     } finally {
