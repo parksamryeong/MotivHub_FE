@@ -11,6 +11,7 @@ import {
 } from '../../api/workspace'
 import { getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
+import { InviteManagement } from './InviteManagement'
 
 export function WorkspaceDetailPage(): ReactElement {
   const { id } = useParams<{ id: string }>()
@@ -184,6 +185,8 @@ export function WorkspaceDetailPage(): ReactElement {
           ))}
         </ul>
       </div>
+
+      {isOwner && <InviteManagement workspaceId={workspaceId} />}
 
       <div className="flex flex-col gap-2 border-t pt-4">
         <button
