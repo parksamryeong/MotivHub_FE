@@ -25,3 +25,41 @@ export interface MyPageProfile {
 export interface NicknameCheckResponse {
   available: boolean
 }
+
+export type WorkspaceRole = 'OWNER' | 'MEMBER'
+
+export interface WorkspaceResponse {
+  id: number
+  name: string
+  myRole: WorkspaceRole
+  createdAt: string
+}
+
+export interface UserSummary {
+  id: number
+  nickname: string
+  profileImageUrl: string | null
+}
+
+export interface MemberSummary {
+  user: UserSummary
+  role: WorkspaceRole
+  joinedAt: string
+}
+
+export interface WorkspaceDetailResponse extends WorkspaceResponse {
+  members: MemberSummary[]
+}
+
+export interface WorkspaceInviteResponse {
+  id: number
+  token: string
+  email: string | null
+  expiresAt: string
+}
+
+export interface ApiErrorResponse {
+  code: string
+  message: string
+  timestamp: string
+}
