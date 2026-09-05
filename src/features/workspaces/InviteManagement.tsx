@@ -8,6 +8,7 @@ export function InviteManagement({ workspaceId }: { workspaceId: number }): Reac
   const queryKey = ['workspaces', workspaceId, 'invites'] as const
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [copyStatus, setCopyStatus] = useState<{ id: number; ok: boolean } | null>(null)
 
   const { data, isLoading, isError } = useQuery({
     queryKey,
@@ -26,7 +27,10 @@ export function InviteManagement({ workspaceId }: { workspaceId: number }): Reac
 
   const revokeMutation = useMutation({
     mutationFn: (inviteId: number) => revokeInvite(workspaceId, inviteId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onSuccess: () => {
+      setError(null)
+      queryClient.invalidateQueries({ queryKey })
+    },
     onError: (error) => setError(getErrorMessage(error)),
   })
 
@@ -36,9 +40,15 @@ export function InviteManagement({ workspaceId }: { workspaceId: number }): Reac
     createMutation.mutate()
   }
 
-  async function handleCopy(token: string) {
+  async function handleCopy(inviteId: number, token: string) {
     const url = `${window.location.origin}/invites/${token}`
-    await navigator.clipboard.writeText(url)
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopyStatus({ id: inviteId, ok: true })
+    } catch {
+      setCopyStatus({ id: inviteId, ok: false })
+    }
+    setTimeout(() => setCopyStatus(null), 2000)
   }
 
   return (
@@ -79,14 +89,19 @@ export function InviteManagement({ workspaceId }: { workspaceId: number }): Reac
                 만료: {new Date(invite.expiresAt).toLocaleString()}
               </span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => handleCopy(invite.token)}
+                onClick={() => handleCopy(invite.id, invite.token)}
                 className="text-sm text-blue-600"
               >
                 복사
               </button>
+              {copyStatus?.id === invite.id && (
+                <span className={copyStatus.ok ? 'text-xs text-green-600' : 'text-xs text-red-600'}>
+                  {copyStatus.ok ? '복사됨' : '복사 실패'}
+                </span>
+              )}
               <button
                 type="button"
                 onClick={() => revokeMutation.mutate(invite.id)}

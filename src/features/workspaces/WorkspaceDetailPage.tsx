@@ -36,6 +36,7 @@ export function WorkspaceDetailPage(): ReactElement {
   const renameMutation = useMutation({
     mutationFn: (name: string) => renameWorkspace(workspaceId, name),
     onSuccess: () => {
+      setActionError(null)
       setIsEditingName(false)
       queryClient.invalidateQueries({ queryKey })
       queryClient.invalidateQueries({ queryKey: ['workspaces'] })
@@ -45,13 +46,17 @@ export function WorkspaceDetailPage(): ReactElement {
 
   const kickMutation = useMutation({
     mutationFn: (targetUserId: number) => kickMember(workspaceId, targetUserId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onSuccess: () => {
+      setActionError(null)
+      queryClient.invalidateQueries({ queryKey })
+    },
     onError: (error) => setActionError(getErrorMessage(error)),
   })
 
   const transferMutation = useMutation({
     mutationFn: (newOwnerUserId: number) => transferOwnership(workspaceId, newOwnerUserId),
     onSuccess: () => {
+      setActionError(null)
       queryClient.invalidateQueries({ queryKey })
       queryClient.invalidateQueries({ queryKey: ['workspaces'] })
     },
@@ -60,13 +65,22 @@ export function WorkspaceDetailPage(): ReactElement {
 
   const leaveMutation = useMutation({
     mutationFn: () => leaveWorkspace(workspaceId),
-    onSuccess: () => navigate('/workspaces', { replace: true }),
+    onSuccess: () => {
+      setActionError(null)
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+      navigate('/workspaces', { replace: true })
+    },
     onError: (error) => setActionError(getErrorMessage(error)),
   })
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteWorkspace(workspaceId),
-    onSuccess: () => navigate('/workspaces', { replace: true }),
+    onSuccess: () => {
+      setActionError(null)
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+      queryClient.removeQueries({ queryKey })
+      navigate('/workspaces', { replace: true })
+    },
     onError: (error) => setActionError(getErrorMessage(error)),
   })
 
@@ -191,7 +205,11 @@ export function WorkspaceDetailPage(): ReactElement {
       <div className="flex flex-col gap-2 border-t pt-4">
         <button
           type="button"
-          onClick={() => leaveMutation.mutate()}
+          onClick={() => {
+            if (confirm('워크스페이스에서 나가시겠습니까?')) {
+              leaveMutation.mutate()
+            }
+          }}
           disabled={leaveMutation.isPending}
           className="self-start rounded border px-4 py-2 disabled:opacity-50"
         >
