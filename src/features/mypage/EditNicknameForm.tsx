@@ -70,19 +70,19 @@ export function EditNicknameForm({
       <input
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}
-        className="rounded border px-2 py-1"
+        className="rounded-lg border border-card-border px-2 py-1 text-text-primary"
       />
       <button
         type="submit"
         disabled={!available || checking || submitting}
-        className="rounded bg-blue-600 px-3 py-1 text-white disabled:opacity-50"
+        className="rounded-lg bg-action px-3 py-1 text-action-text disabled:opacity-50"
       >
         저장
       </button>
-      <button type="button" onClick={onCancel} className="rounded px-3 py-1">
+      <button type="button" onClick={onCancel} className="rounded-lg px-3 py-1 text-text-primary">
         취소
       </button>
-      {checking && <span className="text-sm text-gray-500">확인 중...</span>}
+      {checking && <span className="text-sm text-text-secondary">확인 중...</span>}
       {!checking && available === false && (
         <span className="text-sm text-red-600">사용 중인 닉네임</span>
       )}

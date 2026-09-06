@@ -34,12 +34,12 @@ export function MyPage(): ReactElement {
     }
   }
 
-  if (isLoading) return <div className="p-8">로딩 중...</div>
-  if (isError || !data) return <div className="p-8">프로필을 불러오지 못했습니다.</div>
+  if (isLoading) return <p className="text-text-secondary">로딩 중...</p>
+  if (isError || !data) return <p className="text-red-600">프로필을 불러오지 못했습니다.</p>
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-4 p-8">
-      <h1 className="text-2xl font-bold">마이페이지</h1>
+    <div className="mx-auto flex max-w-md flex-col gap-4 rounded-xl bg-card-bg p-8 shadow-[0_1px_3px_rgba(17,24,39,0.08)]">
+      <h1 className="text-2xl font-bold text-text-primary">마이페이지</h1>
       {data.profileImageUrl && (
         <img
           src={data.profileImageUrl}
@@ -48,7 +48,7 @@ export function MyPage(): ReactElement {
         />
       )}
       <div>
-        <span className="text-sm text-gray-500">닉네임</span>
+        <span className="text-sm text-text-secondary">닉네임</span>
         {isEditing ? (
           <EditNicknameForm
             currentNickname={data.nickname}
@@ -60,11 +60,11 @@ export function MyPage(): ReactElement {
           />
         ) : (
           <div className="flex items-center gap-2">
-            <p>{data.nickname}</p>
+            <p className="text-text-primary">{data.nickname}</p>
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="text-sm text-blue-600"
+              className="text-sm text-accent-subtle-text"
             >
               수정
             </button>
@@ -72,30 +72,32 @@ export function MyPage(): ReactElement {
         )}
       </div>
       <div>
-        <span className="text-sm text-gray-500">이메일</span>
-        <p>{data.email}</p>
+        <span className="text-sm text-text-secondary">이메일</span>
+        <p className="text-text-primary">{data.email}</p>
       </div>
       <div>
-        <span className="text-sm text-gray-500">가입일</span>
-        <p>{new Date(data.createdAt).toLocaleDateString()}</p>
+        <span className="text-sm text-text-secondary">가입일</span>
+        <p className="text-text-primary">{new Date(data.createdAt).toLocaleDateString()}</p>
       </div>
 
       {showDeleteConfirm ? (
-        <div className="rounded border border-red-300 p-3">
-          <p className="mb-2 text-sm">정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+        <div className="rounded-lg border border-red-300 p-3">
+          <p className="mb-2 text-sm text-text-primary">
+            정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+          </p>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={handleDelete}
               disabled={deleting}
-              className="rounded bg-red-600 px-3 py-1 text-white disabled:opacity-50"
+              className="rounded-lg bg-red-600 px-3 py-1 text-white disabled:opacity-50"
             >
               {deleting ? '처리 중...' : '탈퇴하기'}
             </button>
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(false)}
-              className="rounded px-3 py-1"
+              className="rounded-lg px-3 py-1 text-text-primary"
             >
               취소
             </button>
