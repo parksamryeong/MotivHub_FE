@@ -151,7 +151,7 @@ export function WorkspaceDetailPage(): ReactElement {
           {data.members.map((member) => (
             <li
               key={member.user.id}
-              className="flex items-center justify-between rounded-xl bg-card-bg px-3 py-2 shadow-[0_1px_3px_rgba(17,24,39,0.08)]"
+              className="flex items-center justify-between rounded-xl bg-card-bg px-3 py-2 shadow-card"
             >
               <div className="flex items-center gap-2">
                 {member.user.profileImageUrl && (
@@ -162,10 +162,10 @@ export function WorkspaceDetailPage(): ReactElement {
                   />
                 )}
                 <span className="text-text-primary">{member.user.nickname}</span>
-                <span className="rounded-md bg-accent-subtle px-2 py-0.5 text-xs font-medium text-accent-subtle-text">
+                <span className="rounded-md bg-accent-subtle px-2 py-1 text-xs font-medium text-accent-subtle-text">
                   {member.role === 'OWNER' ? '오너' : '멤버'}
                 </span>
-                <span className="text-xs text-text-muted">
+                <span className="text-xs text-text-secondary">
                   가입일 {new Date(member.joinedAt).toLocaleDateString()}
                 </span>
               </div>

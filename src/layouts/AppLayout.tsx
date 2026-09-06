@@ -18,7 +18,7 @@ export function AppLayout(): ReactElement {
 
   const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
     `block rounded-lg px-3 py-2 text-sm ${
-      isActive ? 'bg-sidebar-active font-semibold text-accent' : 'text-sidebar-muted'
+      isActive ? 'bg-sidebar-active font-semibold text-accent' : 'text-sidebar-muted hover:text-white'
     }`
 
   return (

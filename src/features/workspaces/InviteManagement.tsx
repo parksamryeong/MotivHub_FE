@@ -80,7 +80,7 @@ export function InviteManagement({ workspaceId }: { workspaceId: number }): Reac
         {data?.map((invite) => (
           <li
             key={invite.id}
-            className="flex items-center justify-between rounded-xl bg-card-bg px-3 py-2 shadow-[0_1px_3px_rgba(17,24,39,0.08)]"
+            className="flex items-center justify-between rounded-xl bg-card-bg px-3 py-2 shadow-card"
           >
             <div className="flex flex-col text-sm">
               <span className="text-text-primary">{`${window.location.origin}/invites/${invite.token}`}</span>

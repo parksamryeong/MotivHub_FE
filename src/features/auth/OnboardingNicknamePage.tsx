@@ -66,8 +66,8 @@ export function OnboardingNicknamePage(): ReactElement {
   }
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-3 bg-sidebar">
-      <div className="flex w-80 flex-col items-center gap-3 rounded-xl bg-card-bg p-8 shadow-[0_1px_3px_rgba(17,24,39,0.08)]">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-sidebar">
+      <div className="flex w-80 flex-col items-center gap-3 rounded-xl bg-card-bg p-8 shadow-card">
         <h1 className="text-2xl font-bold text-text-primary">닉네임을 설정해주세요</h1>
         <form onSubmit={handleSubmit} className="flex w-full flex-col items-center gap-2">
           <input

@@ -38,7 +38,7 @@ export function MyPage(): ReactElement {
   if (isError || !data) return <p className="text-red-600">프로필을 불러오지 못했습니다.</p>
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-4 rounded-xl bg-card-bg p-8 shadow-[0_1px_3px_rgba(17,24,39,0.08)]">
+    <div className="mx-auto flex max-w-md flex-col gap-4 rounded-xl bg-card-bg p-8 shadow-card">
       <h1 className="text-2xl font-bold text-text-primary">마이페이지</h1>
       {data.profileImageUrl && (
         <img

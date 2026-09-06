@@ -43,7 +43,7 @@ function App() {
 
   if (isBootstrapping) {
     return (
-      <div className="flex h-screen items-center justify-center">로딩 중...</div>
+      <div className="flex min-h-screen items-center justify-center bg-sidebar text-white">로딩 중...</div>
     )
   }
 

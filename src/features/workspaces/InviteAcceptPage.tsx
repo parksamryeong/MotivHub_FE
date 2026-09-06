@@ -41,7 +41,7 @@ export function InviteAcceptPage(): ReactElement {
   }, [token, isAuthenticated, navigate, queryClient])
 
   return (
-    <div className="flex h-screen items-center justify-center bg-sidebar text-white">
+    <div className="flex min-h-screen items-center justify-center bg-sidebar text-white">
       {error ?? '초대 처리 중...'}
     </div>
   )

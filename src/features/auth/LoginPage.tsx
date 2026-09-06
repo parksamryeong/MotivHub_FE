@@ -15,8 +15,8 @@ export function LoginPage(): ReactElement {
   }
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-3 bg-sidebar">
-      <div className="flex w-80 flex-col items-center gap-3 rounded-xl bg-card-bg p-8 shadow-[0_1px_3px_rgba(17,24,39,0.08)]">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-sidebar">
+      <div className="flex w-80 flex-col items-center gap-3 rounded-xl bg-card-bg p-8 shadow-card">
         <h1 className="mb-2 text-2xl font-bold text-text-primary">MotivHub 로그인</h1>
         {PROVIDERS.map((provider) => (
           <button

@@ -67,7 +67,7 @@ export function WorkspaceListPage(): ReactElement {
             <button
               type="button"
               onClick={() => navigate(`/workspaces/${workspace.id}`)}
-              className="flex w-full items-center justify-between rounded-xl bg-card-bg px-4 py-3 text-left shadow-[0_1px_3px_rgba(17,24,39,0.08)] hover:shadow-[0_2px_6px_rgba(17,24,39,0.12)]"
+              className="flex w-full items-center justify-between rounded-xl bg-card-bg px-4 py-3 text-left shadow-card hover:shadow-card-hover"
             >
               <span className="text-text-primary">{workspace.name}</span>
               <span className="rounded-md bg-accent-subtle px-2 py-1 text-xs font-medium text-accent-subtle-text">
