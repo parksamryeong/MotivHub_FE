@@ -15,18 +15,20 @@ export function LoginPage(): ReactElement {
   }
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-3">
-      <h1 className="mb-4 text-2xl font-bold">MotivHub 로그인</h1>
-      {PROVIDERS.map((provider) => (
-        <button
-          key={provider.id}
-          type="button"
-          onClick={() => handleLogin(provider.id)}
-          className="w-64 rounded border px-4 py-2 hover:bg-gray-50"
-        >
-          {provider.label}
-        </button>
-      ))}
+    <div className="flex h-screen flex-col items-center justify-center gap-3 bg-sidebar">
+      <div className="flex w-80 flex-col items-center gap-3 rounded-xl bg-card-bg p-8 shadow-[0_1px_3px_rgba(17,24,39,0.08)]">
+        <h1 className="mb-2 text-2xl font-bold text-text-primary">MotivHub 로그인</h1>
+        {PROVIDERS.map((provider) => (
+          <button
+            key={provider.id}
+            type="button"
+            onClick={() => handleLogin(provider.id)}
+            className="w-full rounded-lg border border-card-border px-4 py-2 text-text-primary hover:bg-content-bg"
+          >
+            {provider.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

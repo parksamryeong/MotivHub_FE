@@ -55,7 +55,7 @@ export function OAuthCallbackPage(): ReactElement {
   }, [searchParams, navigate, setTokens, setUser])
 
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex h-screen items-center justify-center bg-sidebar text-white">
       {error ?? '로그인 처리 중...'}
     </div>
   )

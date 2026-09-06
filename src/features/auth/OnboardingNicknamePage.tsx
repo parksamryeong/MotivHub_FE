@@ -66,31 +66,33 @@ export function OnboardingNicknamePage(): ReactElement {
   }
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-3">
-      <h1 className="text-2xl font-bold">닉네임을 설정해주세요</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col items-center gap-2">
-        <input
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-          placeholder="닉네임"
-          className="w-64 rounded border px-3 py-2"
-        />
-        {checking && <p className="text-sm text-gray-500">확인 중...</p>}
-        {!checking && available === true && (
-          <p className="text-sm text-green-600">사용 가능한 닉네임입니다</p>
-        )}
-        {!checking && available === false && (
-          <p className="text-sm text-red-600">이미 사용 중인 닉네임입니다</p>
-        )}
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={!available || checking || submitting}
-          className="w-64 rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
-        >
-          {submitting ? '저장 중...' : '완료'}
-        </button>
-      </form>
+    <div className="flex h-screen flex-col items-center justify-center gap-3 bg-sidebar">
+      <div className="flex w-80 flex-col items-center gap-3 rounded-xl bg-card-bg p-8 shadow-[0_1px_3px_rgba(17,24,39,0.08)]">
+        <h1 className="text-2xl font-bold text-text-primary">닉네임을 설정해주세요</h1>
+        <form onSubmit={handleSubmit} className="flex w-full flex-col items-center gap-2">
+          <input
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            placeholder="닉네임"
+            className="w-full rounded-lg border border-card-border px-3 py-2 text-text-primary"
+          />
+          {checking && <p className="text-sm text-text-secondary">확인 중...</p>}
+          {!checking && available === true && (
+            <p className="text-sm text-green-600">사용 가능한 닉네임입니다</p>
+          )}
+          {!checking && available === false && (
+            <p className="text-sm text-red-600">이미 사용 중인 닉네임입니다</p>
+          )}
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button
+            type="submit"
+            disabled={!available || checking || submitting}
+            className="w-full rounded-lg bg-action px-4 py-2 text-action-text disabled:opacity-50"
+          >
+            {submitting ? '저장 중...' : '완료'}
+          </button>
+        </form>
+      </div>
     </div>
   )
 }
