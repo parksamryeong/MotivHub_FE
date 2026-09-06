@@ -63,3 +63,25 @@ export interface ApiErrorResponse {
   message: string
   timestamp: string
 }
+
+export type TaskStatus = 'WAITING' | 'IN_PROGRESS' | 'DONE' | 'EXPIRED'
+
+export interface TaskResponse {
+  id: number
+  workspaceId: number
+  name: string
+  description: string | null
+  startDate: string
+  dueDate: string
+  status: TaskStatus
+  assignees: UserSummary[]
+  createdBy: UserSummary
+  createdAt: string
+}
+
+export interface TaskCommentResponse {
+  id: number
+  author: UserSummary
+  content: string
+  createdAt: string
+}
