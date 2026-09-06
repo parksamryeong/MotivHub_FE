@@ -90,7 +90,7 @@ export function WorkspaceDetailPage(): ReactElement {
     renameMutation.mutate(nameDraft.trim())
   }
 
-  if (isLoading) return <p>로딩 중...</p>
+  if (isLoading) return <p className="text-text-secondary">로딩 중...</p>
   if (isError || !data) {
     return <p className="text-red-600">찾을 수 없거나 접근 권한이 없습니다.</p>
   }
@@ -106,27 +106,27 @@ export function WorkspaceDetailPage(): ReactElement {
               value={nameDraft}
               onChange={(e) => setNameDraft(e.target.value)}
               maxLength={50}
-              className="flex-1 rounded border px-3 py-2"
+              className="flex-1 rounded-lg border border-card-border bg-card-bg px-3 py-2 text-text-primary"
               autoFocus
             />
             <button
               type="submit"
               disabled={!nameDraft.trim() || renameMutation.isPending}
-              className="rounded bg-blue-600 px-3 py-2 text-white disabled:opacity-50"
+              className="rounded-lg bg-action px-3 py-2 text-action-text disabled:opacity-50"
             >
               저장
             </button>
             <button
               type="button"
               onClick={() => setIsEditingName(false)}
-              className="rounded px-3 py-2"
+              className="rounded-lg px-3 py-2 text-text-primary"
             >
               취소
             </button>
           </form>
         ) : (
           <>
-            <h1 className="text-2xl font-bold">{data.name}</h1>
+            <h1 className="text-2xl font-bold text-text-primary">{data.name}</h1>
             {isOwner && (
               <button
                 type="button"
@@ -134,7 +134,7 @@ export function WorkspaceDetailPage(): ReactElement {
                   setNameDraft(data.name)
                   setIsEditingName(true)
                 }}
-                className="text-sm text-blue-600"
+                className="text-sm text-accent-subtle-text"
               >
                 수정
               </button>
@@ -146,12 +146,12 @@ export function WorkspaceDetailPage(): ReactElement {
       {actionError && <p className="text-sm text-red-600">{actionError}</p>}
 
       <div>
-        <h2 className="mb-2 text-lg font-semibold">멤버</h2>
+        <h2 className="mb-2 text-lg font-semibold text-text-primary">멤버</h2>
         <ul className="flex flex-col gap-2">
           {data.members.map((member) => (
             <li
               key={member.user.id}
-              className="flex items-center justify-between rounded border px-3 py-2"
+              className="flex items-center justify-between rounded-xl bg-card-bg px-3 py-2 shadow-[0_1px_3px_rgba(17,24,39,0.08)]"
             >
               <div className="flex items-center gap-2">
                 {member.user.profileImageUrl && (
@@ -161,11 +161,11 @@ export function WorkspaceDetailPage(): ReactElement {
                     className="h-8 w-8 rounded-full"
                   />
                 )}
-                <span>{member.user.nickname}</span>
-                <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                <span className="text-text-primary">{member.user.nickname}</span>
+                <span className="rounded-md bg-accent-subtle px-2 py-0.5 text-xs font-medium text-accent-subtle-text">
                   {member.role === 'OWNER' ? '오너' : '멤버'}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-text-muted">
                   가입일 {new Date(member.joinedAt).toLocaleDateString()}
                 </span>
               </div>
@@ -178,7 +178,7 @@ export function WorkspaceDetailPage(): ReactElement {
                         transferMutation.mutate(member.user.id)
                       }
                     }}
-                    className="text-sm text-blue-600"
+                    className="text-sm text-accent-subtle-text"
                   >
                     오너십 이전
                   </button>
@@ -202,7 +202,7 @@ export function WorkspaceDetailPage(): ReactElement {
 
       {isOwner && <InviteManagement workspaceId={workspaceId} />}
 
-      <div className="flex flex-col gap-2 border-t pt-4">
+      <div className="flex flex-col gap-2 border-t border-card-border pt-4">
         <button
           type="button"
           onClick={() => {
@@ -211,15 +211,15 @@ export function WorkspaceDetailPage(): ReactElement {
             }
           }}
           disabled={leaveMutation.isPending}
-          className="self-start rounded border px-4 py-2 disabled:opacity-50"
+          className="self-start rounded-lg border border-card-border px-4 py-2 text-text-primary disabled:opacity-50"
         >
           나가기
         </button>
 
         {isOwner &&
           (showDeleteConfirm ? (
-            <div className="rounded border border-red-300 p-3">
-              <p className="mb-2 text-sm">
+            <div className="rounded-lg border border-red-300 p-3">
+              <p className="mb-2 text-sm text-text-primary">
                 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
               </p>
               <div className="flex gap-2">
@@ -227,14 +227,14 @@ export function WorkspaceDetailPage(): ReactElement {
                   type="button"
                   onClick={() => deleteMutation.mutate()}
                   disabled={deleteMutation.isPending}
-                  className="rounded bg-red-600 px-3 py-1 text-white disabled:opacity-50"
+                  className="rounded-lg bg-red-600 px-3 py-1 text-white disabled:opacity-50"
                 >
                   {deleteMutation.isPending ? '처리 중...' : '삭제하기'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="rounded px-3 py-1"
+                  className="rounded-lg px-3 py-1 text-text-primary"
                 >
                   취소
                 </button>
