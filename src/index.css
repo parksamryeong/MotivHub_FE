@@ -1,1 +1,20 @@
 @import "tailwindcss";
+
+@theme {
+  --color-sidebar: #171923;
+  --color-sidebar-active: #262A3B;
+  --color-sidebar-muted: #8B8FA3;
+  --color-accent: #14B8A6;
+  --color-accent-subtle: #CCFBF1;
+  --color-accent-subtle-text: #0F766E;
+  --color-content-bg: #FAFAFB;
+  --color-card-bg: #FFFFFF;
+  --color-card-border: #E4E4E7;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-muted: #9CA3AF;
+  --color-action: #111827;
+  --color-action-text: #FFFFFF;
+
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+}
