@@ -1,10 +1,19 @@
 import { useState, type ReactElement } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
 import { fetchWorkspaceDetail } from '../../api/workspace'
-import { fetchTasks } from '../../api/task'
+import { fetchTasks, updateTaskStatus } from '../../api/task'
+import { getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import type { TaskResponse, TaskStatus } from '../../api/types'
+import { BoardColumn } from './BoardColumn'
 import { TaskCard } from './TaskCard'
 import { TaskFormModal } from './TaskFormModal'
 import { TaskDetailModal } from './TaskDetailModal'
@@ -19,9 +28,15 @@ export function WorkspaceBoardPage(): ReactElement {
   const { id } = useParams<{ id: string }>()
   const workspaceId = Number(id)
   const currentUserId = useAuthStore((state) => state.user?.id)
+  const queryClient = useQueryClient()
 
   const [createStatus, setCreateStatus] = useState<TaskStatus | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
+  const [dragError, setDragError] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  )
 
   const workspaceQuery = useQuery({
     queryKey: ['workspaces', workspaceId],
@@ -49,6 +64,7 @@ export function WorkspaceBoardPage(): ReactElement {
   const tasks = tasksQuery.data
   const isWorkspaceOwner = workspace.myRole === 'OWNER'
   const members = workspace.members.map((member) => member.user)
+  const tasksQueryKey = ['workspaces', workspaceId, 'tasks'] as const
 
   function tasksFor(status: TaskStatus): TaskResponse[] {
     if (status === 'IN_PROGRESS') {
@@ -56,6 +72,31 @@ export function WorkspaceBoardPage(): ReactElement {
       return tasks.filter((task) => task.status === 'IN_PROGRESS' || task.status === 'EXPIRED')
     }
     return tasks.filter((task) => task.status === status)
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over) return
+
+    const taskId = active.id as number
+    const newStatus = over.id as TaskStatus
+    const task = tasks.find((t) => t.id === taskId)
+    if (!task || task.status === newStatus) return
+
+    const previousTasks = tasks
+    queryClient.setQueryData<TaskResponse[]>(tasksQueryKey, (old) =>
+      old?.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
+    )
+    setDragError(null)
+
+    updateTaskStatus(taskId, newStatus as Exclude<TaskStatus, 'EXPIRED'>)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: tasksQueryKey })
+      })
+      .catch((err: unknown) => {
+        queryClient.setQueryData(tasksQueryKey, previousTasks)
+        setDragError(getErrorMessage(err))
+      })
   }
 
   return (
@@ -70,27 +111,21 @@ export function WorkspaceBoardPage(): ReactElement {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_1fr_200px]">
-        {COLUMNS.map((column) => (
-          <div
-            key={column.status}
-            className="flex flex-col gap-3 rounded-xl border border-card-border p-3"
-          >
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-text-primary">
-                {column.label} ({tasksFor(column.status).length})
-              </h2>
-              {column.creatable && (
-                <button
-                  type="button"
-                  onClick={() => setCreateStatus(column.status)}
-                  className="text-sm text-accent-subtle-text"
-                >
-                  + 추가
-                </button>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
+      {dragError && (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{dragError}</p>
+      )}
+
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_1fr_200px]">
+          {COLUMNS.map((column) => (
+            <BoardColumn
+              key={column.status}
+              status={column.status}
+              label={column.label}
+              count={tasksFor(column.status).length}
+              creatable={column.creatable}
+              onAddClick={() => setCreateStatus(column.status)}
+            >
               {tasksFor(column.status).length === 0 ? (
                 <p className="text-xs text-text-secondary">아직 태스크가 없습니다.</p>
               ) : (
@@ -105,41 +140,41 @@ export function WorkspaceBoardPage(): ReactElement {
                   />
                 ))
               )}
+            </BoardColumn>
+          ))}
+
+          <div className="flex flex-col gap-3 rounded-xl border border-card-border p-3">
+            <div>
+              <span className="text-xs font-medium text-text-secondary">
+                팀원 ({workspace.members.length}명)
+              </span>
+              <ul className="mt-2 flex flex-col gap-2">
+                {workspace.members.map((member) => (
+                  <li key={member.user.id} className="flex items-center gap-2">
+                    {member.user.profileImageUrl ? (
+                      <img
+                        src={member.user.profileImageUrl}
+                        alt={member.user.nickname}
+                        className="h-6 w-6 rounded-full"
+                      />
+                    ) : (
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-white">
+                        {member.user.nickname.slice(0, 1)}
+                      </div>
+                    )}
+                    <span className="flex-1 truncate text-sm text-text-primary">
+                      {member.user.nickname}
+                    </span>
+                    <span className="text-xs text-text-secondary">
+                      {member.role === 'OWNER' ? '오너' : '멤버'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-        ))}
-
-        <div className="flex flex-col gap-3 rounded-xl border border-card-border p-3">
-          <div>
-            <span className="text-xs font-medium text-text-secondary">
-              팀원 ({workspace.members.length}명)
-            </span>
-            <ul className="mt-2 flex flex-col gap-2">
-              {workspace.members.map((member) => (
-                <li key={member.user.id} className="flex items-center gap-2">
-                  {member.user.profileImageUrl ? (
-                    <img
-                      src={member.user.profileImageUrl}
-                      alt={member.user.nickname}
-                      className="h-6 w-6 rounded-full"
-                    />
-                  ) : (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-white">
-                      {member.user.nickname.slice(0, 1)}
-                    </div>
-                  )}
-                  <span className="flex-1 truncate text-sm text-text-primary">
-                    {member.user.nickname}
-                  </span>
-                  <span className="text-xs text-text-secondary">
-                    {member.role === 'OWNER' ? '오너' : '멤버'}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
-      </div>
+      </DndContext>
 
       {createStatus && (
         <TaskFormModal
