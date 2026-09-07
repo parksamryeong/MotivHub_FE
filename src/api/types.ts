@@ -84,4 +84,35 @@ export interface TaskCommentResponse {
   author: UserSummary
   content: string
   createdAt: string
+  updatedAt: string
+}
+
+export interface ChecklistItemResponse {
+  id: number
+  content: string
+  isDone: boolean
+  orderIndex: number
+  createdAt: string
+}
+
+export interface TaskDetailResponse extends TaskResponse {
+  checklistItems: ChecklistItemResponse[]
+}
+
+export type TaskActivityAction =
+  | 'CREATE'
+  | 'UPDATE_CONTENT'
+  | 'UPDATE_PERIOD'
+  | 'CHANGE_STATUS'
+  | 'ADD_ASSIGNEE'
+  | 'REMOVE_ASSIGNEE'
+
+export interface TaskActivityResponse {
+  id: number
+  actor: UserSummary
+  action: TaskActivityAction
+  field: string | null
+  oldValue: string | null
+  newValue: string | null
+  createdAt: string
 }

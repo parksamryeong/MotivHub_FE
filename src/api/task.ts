@@ -1,5 +1,11 @@
 import { apiClient } from './client'
-import type { TaskResponse, TaskStatus } from './types'
+import type {
+  ChecklistItemResponse,
+  TaskActivityResponse,
+  TaskDetailResponse,
+  TaskResponse,
+  TaskStatus,
+} from './types'
 
 export interface CreateTaskRequest {
   name: string
@@ -21,8 +27,8 @@ export function fetchTasks(workspaceId: number): Promise<TaskResponse[]> {
     .then((res) => res.data)
 }
 
-export function fetchTask(taskId: number): Promise<TaskResponse> {
-  return apiClient.get<TaskResponse>(`/api/tasks/${taskId}`).then((res) => res.data)
+export function fetchTask(taskId: number): Promise<TaskDetailResponse> {
+  return apiClient.get<TaskDetailResponse>(`/api/tasks/${taskId}`).then((res) => res.data)
 }
 
 export function updateTask(
@@ -62,4 +68,33 @@ export function removeAssignee(taskId: number, targetUserId: number): Promise<vo
   return apiClient
     .delete(`/api/tasks/${taskId}/assignees/${targetUserId}`)
     .then(() => undefined)
+}
+
+export function createChecklistItem(
+  taskId: number,
+  content: string
+): Promise<ChecklistItemResponse> {
+  return apiClient
+    .post<ChecklistItemResponse>(`/api/tasks/${taskId}/checklist-items`, { content })
+    .then((res) => res.data)
+}
+
+export function updateChecklistItem(
+  taskId: number,
+  itemId: number,
+  body: { content?: string; isDone?: boolean }
+): Promise<ChecklistItemResponse> {
+  return apiClient
+    .patch<ChecklistItemResponse>(`/api/tasks/${taskId}/checklist-items/${itemId}`, body)
+    .then((res) => res.data)
+}
+
+export function deleteChecklistItem(taskId: number, itemId: number): Promise<void> {
+  return apiClient.delete(`/api/tasks/${taskId}/checklist-items/${itemId}`).then(() => undefined)
+}
+
+export function fetchTaskActivities(taskId: number): Promise<TaskActivityResponse[]> {
+  return apiClient
+    .get<TaskActivityResponse[]>(`/api/tasks/${taskId}/activities`)
+    .then((res) => res.data)
 }
