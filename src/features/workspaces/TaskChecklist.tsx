@@ -2,28 +2,24 @@ import { useState, type FormEvent, type ReactElement } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createChecklistItem, deleteChecklistItem, updateChecklistItem } from '../../api/task'
 import { getErrorMessage } from '../../api/errors'
-import type { ChecklistItemResponse } from '../../api/types'
+import type { ChecklistItemResponse, TaskDetailResponse } from '../../api/types'
 
 export function TaskChecklist({
   taskId,
-  workspaceId,
   items,
   canManage,
 }: {
   taskId: number
-  workspaceId: number
   items: ChecklistItemResponse[]
   canManage: boolean
 }): ReactElement {
   const queryClient = useQueryClient()
   const taskQueryKey = ['tasks', taskId] as const
-  const tasksQueryKey = ['workspaces', workspaceId, 'tasks'] as const
   const [content, setContent] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
-    queryClient.invalidateQueries({ queryKey: tasksQueryKey })
   }
 
   const createMutation = useMutation({
@@ -39,11 +35,31 @@ export function TaskChecklist({
   const toggleMutation = useMutation({
     mutationFn: ({ itemId, isDone }: { itemId: number; isDone: boolean }) =>
       updateChecklistItem(taskId, itemId, { isDone }),
-    onSuccess: () => {
+    onMutate: async ({ itemId, isDone }) => {
+      await queryClient.cancelQueries({ queryKey: taskQueryKey })
+      const previousTask = queryClient.getQueryData<TaskDetailResponse>(taskQueryKey)
+      queryClient.setQueryData<TaskDetailResponse>(taskQueryKey, (old) =>
+        old
+          ? {
+              ...old,
+              checklistItems: old.checklistItems.map((item) =>
+                item.id === itemId ? { ...item, isDone } : item
+              ),
+            }
+          : old
+      )
       setError(null)
+      return { previousTask }
+    },
+    onError: (err, _vars, context) => {
+      if (context?.previousTask) {
+        queryClient.setQueryData(taskQueryKey, context.previousTask)
+      }
+      setError(getErrorMessage(err))
+    },
+    onSuccess: () => {
       invalidate()
     },
-    onError: (err) => setError(getErrorMessage(err)),
   })
 
   const deleteMutation = useMutation({
@@ -74,7 +90,10 @@ export function TaskChecklist({
             <input
               type="checkbox"
               checked={item.isDone}
-              disabled={!canManage || toggleMutation.isPending}
+              disabled={
+                !canManage ||
+                (toggleMutation.isPending && toggleMutation.variables?.itemId === item.id)
+              }
               onChange={(e) =>
                 toggleMutation.mutate({ itemId: item.id, isDone: e.target.checked })
               }
@@ -90,7 +109,7 @@ export function TaskChecklist({
               <button
                 type="button"
                 onClick={() => deleteMutation.mutate(item.id)}
-                disabled={deleteMutation.isPending}
+                disabled={deleteMutation.isPending && deleteMutation.variables === item.id}
                 className="text-xs text-red-600"
               >
                 삭제

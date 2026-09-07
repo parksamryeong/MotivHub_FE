@@ -220,7 +220,6 @@ export function TaskDetailModal({
           <div className="flex flex-1 flex-col gap-4">
             <TaskChecklist
               taskId={taskId}
-              workspaceId={workspaceId}
               items={task.checklistItems}
               canManage={canEditContent}
             />
