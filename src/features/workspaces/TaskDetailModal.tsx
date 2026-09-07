@@ -11,6 +11,7 @@ import { getErrorMessage } from '../../api/errors'
 import type { TaskStatus, UserSummary } from '../../api/types'
 import { TaskAssigneeList } from './TaskAssigneeList'
 import { TaskComments } from './TaskComments'
+import { TaskChecklist } from './TaskChecklist'
 
 const STATUS_OPTIONS: { value: Exclude<TaskStatus, 'EXPIRED'>; label: string }[] = [
   { value: 'WAITING', label: '할 일' },
@@ -215,6 +216,12 @@ export function TaskDetailModal({
 
         <div className="flex flex-col gap-6 md:flex-row">
           <div className="flex flex-1 flex-col gap-4">
+            <TaskChecklist
+              taskId={taskId}
+              workspaceId={workspaceId}
+              items={task.checklistItems}
+              canManage={canEditContent}
+            />
             <TaskComments
               taskId={taskId}
               currentUserId={currentUserId}
