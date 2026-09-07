@@ -6,15 +6,18 @@ import type { TaskResponse, UserSummary } from '../../api/types'
 
 export function TaskAssigneeList({
   task,
+  workspaceId,
   members,
   canManage,
 }: {
   task: TaskResponse
+  workspaceId: number
   members: UserSummary[]
   canManage: boolean
 }): ReactElement {
   const queryClient = useQueryClient()
   const taskQueryKey = ['tasks', task.id] as const
+  const tasksQueryKey = ['workspaces', workspaceId, 'tasks'] as const
   const [newAssigneeId, setNewAssigneeId] = useState('')
   const [error, setError] = useState<string | null>(null)
 
@@ -23,7 +26,8 @@ export function TaskAssigneeList({
     onSuccess: () => {
       setError(null)
       setNewAssigneeId('')
-      queryClient.invalidateQueries({ queryKey: taskQueryKey })
+      queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
+      queryClient.invalidateQueries({ queryKey: tasksQueryKey })
     },
     onError: (err) => setError(getErrorMessage(err)),
   })
@@ -32,7 +36,8 @@ export function TaskAssigneeList({
     mutationFn: (targetUserId: number) => removeAssignee(task.id, targetUserId),
     onSuccess: () => {
       setError(null)
-      queryClient.invalidateQueries({ queryKey: taskQueryKey })
+      queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
+      queryClient.invalidateQueries({ queryKey: tasksQueryKey })
     },
     onError: (err) => setError(getErrorMessage(err)),
   })

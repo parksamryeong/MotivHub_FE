@@ -149,7 +149,13 @@ export function TaskFormModal({
             </button>
             <button
               type="submit"
-              disabled={!name.trim() || !startDate || !dueDate || createMutation.isPending}
+              disabled={
+                !name.trim() ||
+                !startDate ||
+                !dueDate ||
+                createMutation.isPending ||
+                statusWarning !== null
+              }
               className="rounded-lg bg-action px-4 py-2 text-action-text disabled:opacity-50"
             >
               {createMutation.isPending ? '생성 중...' : '생성'}

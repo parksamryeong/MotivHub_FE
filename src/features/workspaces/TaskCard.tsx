@@ -1,6 +1,7 @@
-import type { ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updateTaskStatus } from '../../api/task'
+import { getErrorMessage } from '../../api/errors'
 import type { TaskResponse, TaskStatus } from '../../api/types'
 
 const STATUS_OPTIONS: { value: Exclude<TaskStatus, 'EXPIRED'>; label: string }[] = [
@@ -25,12 +26,15 @@ export function TaskCard({
   const queryClient = useQueryClient()
   const isAssignee = task.assignees.some((assignee) => assignee.id === currentUserId)
   const canChangeStatus = task.status !== 'EXPIRED' && (isWorkspaceOwner || isAssignee)
+  const [error, setError] = useState<string | null>(null)
 
   const statusMutation = useMutation({
     mutationFn: (status: Exclude<TaskStatus, 'EXPIRED'>) => updateTaskStatus(task.id, status),
     onSuccess: () => {
+      setError(null)
       queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'tasks'] })
     },
+    onError: (err) => setError(getErrorMessage(err)),
   })
 
   return (
@@ -80,6 +84,7 @@ export function TaskCard({
           ))}
         </select>
       )}
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   )
 }

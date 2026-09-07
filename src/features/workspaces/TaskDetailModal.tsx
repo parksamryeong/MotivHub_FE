@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ReactElement } from 'react'
+import { useState, type FormEvent, type ReactElement } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   deleteTask,
@@ -54,17 +54,8 @@ export function TaskDetailModal({
   const [dueDateDraft, setDueDateDraft] = useState('')
   const [actionError, setActionError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (task) {
-      setNameDraft(task.name)
-      setDescriptionDraft(task.description ?? '')
-      setStartDateDraft(task.startDate)
-      setDueDateDraft(task.dueDate)
-    }
-  }, [task])
-
   function invalidateTask() {
-    queryClient.invalidateQueries({ queryKey: taskQueryKey })
+    queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
     queryClient.invalidateQueries({ queryKey: tasksQueryKey })
   }
 
@@ -101,6 +92,7 @@ export function TaskDetailModal({
     mutationFn: () => deleteTask(taskId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tasksQueryKey })
+      queryClient.removeQueries({ queryKey: taskQueryKey })
       onClose()
     },
     onError: (error) => setActionError(getErrorMessage(error)),
@@ -202,7 +194,11 @@ export function TaskDetailModal({
               {canEditContent && (
                 <button
                   type="button"
-                  onClick={() => setIsEditingContent(true)}
+                  onClick={() => {
+                    setNameDraft(task.name)
+                    setDescriptionDraft(task.description ?? '')
+                    setIsEditingContent(true)
+                  }}
                   className="mt-1 text-sm text-accent-subtle-text"
                 >
                   수정
@@ -256,7 +252,11 @@ export function TaskDetailModal({
               {canEditPeriod && (
                 <button
                   type="button"
-                  onClick={() => setIsEditingPeriod(true)}
+                  onClick={() => {
+                    setStartDateDraft(task.startDate)
+                    setDueDateDraft(task.dueDate)
+                    setIsEditingPeriod(true)
+                  }}
                   className="text-sm text-accent-subtle-text"
                 >
                   수정
@@ -296,7 +296,12 @@ export function TaskDetailModal({
           </div>
         </div>
 
-        <TaskAssigneeList task={task} members={members} canManage={canEditContent} />
+        <TaskAssigneeList
+          task={task}
+          workspaceId={workspaceId}
+          members={members}
+          canManage={canEditContent}
+        />
 
         {canDelete && (
           <button
