@@ -39,13 +39,20 @@ export function TaskCard({
 
   return (
     <div className="flex flex-col gap-2 rounded-xl bg-card-bg p-3 shadow-card">
-      <button
-        type="button"
-        onClick={onClick}
-        className="text-left text-sm font-medium text-text-primary"
-      >
-        {task.name}
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onClick}
+          className="flex-1 text-left text-sm font-medium text-text-primary"
+        >
+          {task.name}
+        </button>
+        {task.status === 'EXPIRED' && (
+          <span className="rounded-md bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+            만료
+          </span>
+        )}
+      </div>
       <div className="flex items-center gap-1">
         {task.assignees.map((assignee) =>
           assignee.profileImageUrl ? (

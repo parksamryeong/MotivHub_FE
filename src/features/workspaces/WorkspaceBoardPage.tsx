@@ -13,7 +13,6 @@ const COLUMNS: { status: TaskStatus; label: string; creatable: boolean }[] = [
   { status: 'WAITING', label: '할 일', creatable: true },
   { status: 'IN_PROGRESS', label: '진행 중', creatable: true },
   { status: 'DONE', label: '완료', creatable: false },
-  { status: 'EXPIRED', label: '기한만료', creatable: false },
 ]
 
 export function WorkspaceBoardPage(): ReactElement {
@@ -52,52 +51,26 @@ export function WorkspaceBoardPage(): ReactElement {
   const members = workspace.members.map((member) => member.user)
 
   function tasksFor(status: TaskStatus): TaskResponse[] {
+    if (status === 'IN_PROGRESS') {
+      // 별도 컬럼을 두지 않고, 기한이 지나 자동 만료된(EXPIRED) 태스크도 진행 중에 함께 묶어 보여준다.
+      return tasks.filter((task) => task.status === 'IN_PROGRESS' || task.status === 'EXPIRED')
+    }
     return tasks.filter((task) => task.status === status)
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-start justify-between">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-text-primary">{workspace.name}</h1>
-        <div className="flex flex-col items-end gap-2">
-          <Link
-            to={`/workspaces/${workspaceId}/settings`}
-            className="text-sm text-accent-subtle-text"
-          >
-            ⚙ 설정
-          </Link>
-          <div className="w-48 rounded-xl bg-card-bg p-3 shadow-card">
-            <span className="text-xs font-medium text-text-secondary">
-              팀원 ({workspace.members.length}명)
-            </span>
-            <ul className="mt-2 flex flex-col gap-2">
-              {workspace.members.map((member) => (
-                <li key={member.user.id} className="flex items-center gap-2">
-                  {member.user.profileImageUrl ? (
-                    <img
-                      src={member.user.profileImageUrl}
-                      alt={member.user.nickname}
-                      className="h-6 w-6 rounded-full"
-                    />
-                  ) : (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-white">
-                      {member.user.nickname.slice(0, 1)}
-                    </div>
-                  )}
-                  <span className="flex-1 truncate text-sm text-text-primary">
-                    {member.user.nickname}
-                  </span>
-                  <span className="text-xs text-text-secondary">
-                    {member.role === 'OWNER' ? '오너' : '멤버'}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        <Link
+          to={`/workspaces/${workspaceId}/settings`}
+          className="text-sm text-accent-subtle-text"
+        >
+          ⚙ 설정
+        </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_1fr_200px]">
         {COLUMNS.map((column) => (
           <div
             key={column.status}
@@ -135,6 +108,37 @@ export function WorkspaceBoardPage(): ReactElement {
             </div>
           </div>
         ))}
+
+        <div className="flex flex-col gap-3 rounded-xl border border-card-border p-3">
+          <div>
+            <span className="text-xs font-medium text-text-secondary">
+              팀원 ({workspace.members.length}명)
+            </span>
+            <ul className="mt-2 flex flex-col gap-2">
+              {workspace.members.map((member) => (
+                <li key={member.user.id} className="flex items-center gap-2">
+                  {member.user.profileImageUrl ? (
+                    <img
+                      src={member.user.profileImageUrl}
+                      alt={member.user.nickname}
+                      className="h-6 w-6 rounded-full"
+                    />
+                  ) : (
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-white">
+                      {member.user.nickname.slice(0, 1)}
+                    </div>
+                  )}
+                  <span className="flex-1 truncate text-sm text-text-primary">
+                    {member.user.nickname}
+                  </span>
+                  <span className="text-xs text-text-secondary">
+                    {member.role === 'OWNER' ? '오너' : '멤버'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
 
       {createStatus && (
