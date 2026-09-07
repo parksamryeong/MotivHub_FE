@@ -1,5 +1,6 @@
 import { useState, type ReactElement } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useDraggable } from '@dnd-kit/core'
 import { updateTaskStatus } from '../../api/task'
 import { getErrorMessage } from '../../api/errors'
 import type { TaskResponse, TaskStatus } from '../../api/types'
@@ -28,6 +29,15 @@ export function TaskCard({
   const canChangeStatus = task.status !== 'EXPIRED' && (isWorkspaceOwner || isAssignee)
   const [error, setError] = useState<string | null>(null)
 
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: task.id,
+    disabled: !canChangeStatus,
+  })
+
+  const dragStyle = transform
+    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
+    : undefined
+
   const statusMutation = useMutation({
     mutationFn: (status: Exclude<TaskStatus, 'EXPIRED'>) => updateTaskStatus(task.id, status),
     onSuccess: () => {
@@ -38,7 +48,14 @@ export function TaskCard({
   })
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl bg-card-bg p-3 shadow-card">
+    <div
+      ref={setNodeRef}
+      style={dragStyle}
+      {...(canChangeStatus ? { ...listeners, ...attributes } : {})}
+      className={`flex flex-col gap-2 rounded-xl bg-card-bg p-3 shadow-card ${
+        canChangeStatus ? 'cursor-grab active:cursor-grabbing' : ''
+      } ${isDragging ? 'opacity-50' : ''}`}
+    >
       <div className="flex items-center gap-2">
         <button
           type="button"
