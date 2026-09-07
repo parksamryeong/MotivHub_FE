@@ -150,7 +150,7 @@ export function TaskDetailModal({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-lg flex-col gap-4 overflow-y-auto rounded-xl bg-card-bg p-6 shadow-card">
+      <div className="flex max-h-[90vh] w-full max-w-4xl flex-col gap-4 overflow-y-auto rounded-xl bg-card-bg p-6 shadow-card">
         <div className="flex items-start justify-between">
           {isEditingContent ? (
             <form onSubmit={handleContentSubmit} className="flex flex-1 flex-col gap-2">
@@ -213,112 +213,120 @@ export function TaskDetailModal({
 
         {actionError && <p className="text-sm text-red-600">{actionError}</p>}
 
-        <div>
-          <span className="text-sm text-text-secondary">기간</span>
-          {isEditingPeriod ? (
-            <form onSubmit={handlePeriodSubmit} className="mt-1 flex items-center gap-2">
-              <input
-                type="date"
-                value={startDateDraft}
-                onChange={(e) => setStartDateDraft(e.target.value)}
-                className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-sm text-text-primary"
-              />
-              <input
-                type="date"
-                value={dueDateDraft}
-                onChange={(e) => setDueDateDraft(e.target.value)}
-                className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-sm text-text-primary"
-              />
-              <button
-                type="submit"
-                disabled={!startDateDraft || !dueDateDraft || periodMutation.isPending}
-                className="rounded-lg bg-action px-2 py-1 text-xs text-action-text disabled:opacity-50"
-              >
-                저장
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditingPeriod(false)}
-                className="text-xs text-text-primary"
-              >
-                취소
-              </button>
-            </form>
-          ) : (
-            <div className="mt-1 flex items-center gap-2">
-              <p className="text-sm text-text-primary">
-                {task.startDate} ~ {task.dueDate}
-              </p>
-              {canEditPeriod && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStartDateDraft(task.startDate)
-                    setDueDateDraft(task.dueDate)
-                    setIsEditingPeriod(true)
-                  }}
-                  className="text-sm text-accent-subtle-text"
-                >
-                  수정
-                </button>
+        <div className="flex flex-col gap-6 md:flex-row">
+          <div className="flex flex-1 flex-col gap-4">
+            <TaskComments
+              taskId={taskId}
+              currentUserId={currentUserId}
+              isWorkspaceOwner={isWorkspaceOwner}
+            />
+          </div>
+
+          <div className="flex flex-col gap-4 border-t border-card-border pt-4 md:w-64 md:flex-shrink-0 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+            <div>
+              <span className="text-sm text-text-secondary">기간</span>
+              {isEditingPeriod ? (
+                <form onSubmit={handlePeriodSubmit} className="mt-1 flex flex-col gap-2">
+                  <input
+                    type="date"
+                    value={startDateDraft}
+                    onChange={(e) => setStartDateDraft(e.target.value)}
+                    className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-sm text-text-primary"
+                  />
+                  <input
+                    type="date"
+                    value={dueDateDraft}
+                    onChange={(e) => setDueDateDraft(e.target.value)}
+                    className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-sm text-text-primary"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={!startDateDraft || !dueDateDraft || periodMutation.isPending}
+                      className="rounded-lg bg-action px-2 py-1 text-xs text-action-text disabled:opacity-50"
+                    >
+                      저장
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingPeriod(false)}
+                      className="text-xs text-text-primary"
+                    >
+                      취소
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="mt-1 flex items-center gap-2">
+                  <p className="text-sm text-text-primary">
+                    {task.startDate} ~ {task.dueDate}
+                  </p>
+                  {canEditPeriod && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStartDateDraft(task.startDate)
+                        setDueDateDraft(task.dueDate)
+                        setIsEditingPeriod(true)
+                      }}
+                      className="text-sm text-accent-subtle-text"
+                    >
+                      수정
+                    </button>
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </div>
 
-        <div>
-          <span className="text-sm text-text-secondary">상태</span>
-          <div className="mt-1">
-            {task.status === 'EXPIRED' ? (
-              <p className="text-sm text-text-primary">
-                기한이 지나 자동으로 만료되었습니다. 마감일을 연장하면 자동으로 복귀됩니다.
-              </p>
-            ) : canEditContent ? (
-              <select
-                value={task.status}
-                onChange={(e) =>
-                  statusMutation.mutate(e.target.value as Exclude<TaskStatus, 'EXPIRED'>)
-                }
-                disabled={statusMutation.isPending}
-                className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-sm text-text-primary"
+            <div>
+              <span className="text-sm text-text-secondary">상태</span>
+              <div className="mt-1">
+                {task.status === 'EXPIRED' ? (
+                  <p className="text-sm text-text-primary">
+                    기한이 지나 자동으로 만료되었습니다. 마감일을 연장하면 자동으로 복귀됩니다.
+                  </p>
+                ) : canEditContent ? (
+                  <select
+                    value={task.status}
+                    onChange={(e) =>
+                      statusMutation.mutate(e.target.value as Exclude<TaskStatus, 'EXPIRED'>)
+                    }
+                    disabled={statusMutation.isPending}
+                    className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-sm text-text-primary"
+                  >
+                    {STATUS_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="text-sm text-text-primary">
+                    {STATUS_OPTIONS.find((option) => option.value === task.status)?.label}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <TaskAssigneeList
+              task={task}
+              workspaceId={workspaceId}
+              members={members}
+              canManage={canEditContent}
+            />
+
+            {canDelete && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+                className="self-start text-sm text-red-600"
               >
-                {STATUS_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <p className="text-sm text-text-primary">
-                {STATUS_OPTIONS.find((option) => option.value === task.status)?.label}
-              </p>
+                태스크 삭제
+              </button>
             )}
           </div>
         </div>
-
-        <TaskAssigneeList
-          task={task}
-          workspaceId={workspaceId}
-          members={members}
-          canManage={canEditContent}
-        />
-
-        {canDelete && (
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-            className="self-start text-sm text-red-600"
-          >
-            태스크 삭제
-          </button>
-        )}
-
-        <TaskComments
-          taskId={taskId}
-          currentUserId={currentUserId}
-          isWorkspaceOwner={isWorkspaceOwner}
-        />
       </div>
     </div>
   )
