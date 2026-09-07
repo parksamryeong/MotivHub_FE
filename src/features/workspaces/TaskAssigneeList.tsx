@@ -28,6 +28,7 @@ export function TaskAssigneeList({
       setNewAssigneeId('')
       queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
       queryClient.invalidateQueries({ queryKey: tasksQueryKey })
+      queryClient.invalidateQueries({ queryKey: ['tasks', task.id, 'activities'] })
     },
     onError: (err) => setError(getErrorMessage(err)),
   })
@@ -38,6 +39,7 @@ export function TaskAssigneeList({
       setError(null)
       queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
       queryClient.invalidateQueries({ queryKey: tasksQueryKey })
+      queryClient.invalidateQueries({ queryKey: ['tasks', task.id, 'activities'] })
     },
     onError: (err) => setError(getErrorMessage(err)),
   })

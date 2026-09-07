@@ -12,6 +12,7 @@ import type { TaskStatus, UserSummary } from '../../api/types'
 import { TaskAssigneeList } from './TaskAssigneeList'
 import { TaskComments } from './TaskComments'
 import { TaskChecklist } from './TaskChecklist'
+import { TaskActivityLog } from './TaskActivityLog'
 
 const STATUS_OPTIONS: { value: Exclude<TaskStatus, 'EXPIRED'>; label: string }[] = [
   { value: 'WAITING', label: '할 일' },
@@ -58,6 +59,7 @@ export function TaskDetailModal({
   function invalidateTask() {
     queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
     queryClient.invalidateQueries({ queryKey: tasksQueryKey })
+    queryClient.invalidateQueries({ queryKey: ['tasks', taskId, 'activities'] })
   }
 
   const contentMutation = useMutation({
@@ -222,6 +224,7 @@ export function TaskDetailModal({
               items={task.checklistItems}
               canManage={canEditContent}
             />
+            <TaskActivityLog taskId={taskId} />
             <TaskComments
               taskId={taskId}
               currentUserId={currentUserId}
