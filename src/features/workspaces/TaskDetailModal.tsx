@@ -314,7 +314,11 @@ export function TaskDetailModal({
           </button>
         )}
 
-        <TaskComments taskId={taskId} />
+        <TaskComments
+          taskId={taskId}
+          currentUserId={currentUserId}
+          isWorkspaceOwner={isWorkspaceOwner}
+        />
       </div>
     </div>
   )
