@@ -18,7 +18,7 @@ import { TaskCard } from './TaskCard'
 import { TaskFormModal } from './TaskFormModal'
 import { TaskDetailModal } from './TaskDetailModal'
 
-const COLUMNS: { status: TaskStatus; label: string; creatable: boolean }[] = [
+const COLUMNS: { status: Exclude<TaskStatus, 'EXPIRED'>; label: string; creatable: boolean }[] = [
   { status: 'WAITING', label: '할 일', creatable: true },
   { status: 'IN_PROGRESS', label: '진행 중', creatable: true },
   { status: 'DONE', label: '완료', creatable: false },
@@ -74,27 +74,34 @@ export function WorkspaceBoardPage(): ReactElement {
     return tasks.filter((task) => task.status === status)
   }
 
-  function handleDragEnd(event: DragEndEvent) {
+  async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (!over) return
 
+    const targetColumn = COLUMNS.find((c) => c.status === over.id)
+    if (!targetColumn) return
+    const newStatus = targetColumn.status
+
     const taskId = active.id as number
-    const newStatus = over.id as TaskStatus
     const task = tasks.find((t) => t.id === taskId)
     if (!task || task.status === newStatus) return
 
-    const previousTasks = tasks
+    const previousStatus = task.status
+
+    await queryClient.cancelQueries({ queryKey: tasksQueryKey })
     queryClient.setQueryData<TaskResponse[]>(tasksQueryKey, (old) =>
       old?.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
     )
     setDragError(null)
 
-    updateTaskStatus(taskId, newStatus as Exclude<TaskStatus, 'EXPIRED'>)
+    updateTaskStatus(taskId, newStatus)
       .then(() => {
         queryClient.invalidateQueries({ queryKey: tasksQueryKey })
       })
       .catch((err: unknown) => {
-        queryClient.setQueryData(tasksQueryKey, previousTasks)
+        queryClient.setQueryData<TaskResponse[]>(tasksQueryKey, (old) =>
+          old?.map((t) => (t.id === taskId ? { ...t, status: previousStatus } : t))
+        )
         setDragError(getErrorMessage(err))
       })
   }
