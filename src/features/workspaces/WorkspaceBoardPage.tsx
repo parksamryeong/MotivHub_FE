@@ -12,7 +12,7 @@ import { TaskDetailModal } from './TaskDetailModal'
 const COLUMNS: { status: TaskStatus; label: string; creatable: boolean }[] = [
   { status: 'WAITING', label: '할 일', creatable: true },
   { status: 'IN_PROGRESS', label: '진행 중', creatable: true },
-  { status: 'DONE', label: '완료', creatable: true },
+  { status: 'DONE', label: '완료', creatable: false },
   { status: 'EXPIRED', label: '기한만료', creatable: false },
 ]
 
@@ -57,42 +57,52 @@ export function WorkspaceBoardPage(): ReactElement {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">{workspace.name}</h1>
-          <div className="mt-2 flex items-center gap-1">
-            {workspace.members.map((member) =>
-              member.user.profileImageUrl ? (
-                <img
-                  key={member.user.id}
-                  src={member.user.profileImageUrl}
-                  alt={member.user.nickname}
-                  title={member.user.nickname}
-                  className="h-8 w-8 rounded-full"
-                />
-              ) : (
-                <div
-                  key={member.user.id}
-                  title={member.user.nickname}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-xs font-semibold text-white"
-                >
-                  {member.user.nickname.slice(0, 1)}
-                </div>
-              )
-            )}
+      <div className="flex items-start justify-between">
+        <h1 className="text-2xl font-bold text-text-primary">{workspace.name}</h1>
+        <div className="flex flex-col items-end gap-2">
+          <Link
+            to={`/workspaces/${workspaceId}/settings`}
+            className="text-sm text-accent-subtle-text"
+          >
+            ⚙ 설정
+          </Link>
+          <div className="w-48 rounded-xl bg-card-bg p-3 shadow-card">
+            <span className="text-xs font-medium text-text-secondary">
+              팀원 ({workspace.members.length}명)
+            </span>
+            <ul className="mt-2 flex flex-col gap-2">
+              {workspace.members.map((member) => (
+                <li key={member.user.id} className="flex items-center gap-2">
+                  {member.user.profileImageUrl ? (
+                    <img
+                      src={member.user.profileImageUrl}
+                      alt={member.user.nickname}
+                      className="h-6 w-6 rounded-full"
+                    />
+                  ) : (
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-white">
+                      {member.user.nickname.slice(0, 1)}
+                    </div>
+                  )}
+                  <span className="flex-1 truncate text-sm text-text-primary">
+                    {member.user.nickname}
+                  </span>
+                  <span className="text-xs text-text-secondary">
+                    {member.role === 'OWNER' ? '오너' : '멤버'}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-        <Link
-          to={`/workspaces/${workspaceId}/settings`}
-          className="text-sm text-accent-subtle-text"
-        >
-          ⚙ 설정
-        </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         {COLUMNS.map((column) => (
-          <div key={column.status} className="flex flex-col gap-3">
+          <div
+            key={column.status}
+            className="flex flex-col gap-3 rounded-xl border border-card-border p-3"
+          >
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-text-primary">
                 {column.label} ({tasksFor(column.status).length})
@@ -108,16 +118,20 @@ export function WorkspaceBoardPage(): ReactElement {
               )}
             </div>
             <div className="flex flex-col gap-2">
-              {tasksFor(column.status).map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  workspaceId={workspaceId}
-                  currentUserId={currentUserId}
-                  isWorkspaceOwner={isWorkspaceOwner}
-                  onClick={() => setSelectedTaskId(task.id)}
-                />
-              ))}
+              {tasksFor(column.status).length === 0 ? (
+                <p className="text-xs text-text-secondary">아직 태스크가 없습니다.</p>
+              ) : (
+                tasksFor(column.status).map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    workspaceId={workspaceId}
+                    currentUserId={currentUserId}
+                    isWorkspaceOwner={isWorkspaceOwner}
+                    onClick={() => setSelectedTaskId(task.id)}
+                  />
+                ))
+              )}
             </div>
           </div>
         ))}
