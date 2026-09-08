@@ -116,3 +116,21 @@ export interface TaskActivityResponse {
   newValue: string | null
   createdAt: string
 }
+
+export interface WorkspaceFileResponse {
+  id: number
+  fileName: string
+  fileSize: number
+  contentType: string
+  uploadedBy: UserSummary
+  createdAt: string
+}
+
+export interface FilePresignResponse {
+  uploadUrl: string
+  fileKey: string
+}
+
+export interface FileDownloadResponse {
+  downloadUrl: string
+}
