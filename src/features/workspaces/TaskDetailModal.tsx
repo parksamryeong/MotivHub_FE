@@ -153,7 +153,7 @@ export function TaskDetailModal({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-4xl flex-col gap-4 overflow-y-auto rounded-xl bg-card-bg p-6 shadow-card">
+      <div className="flex max-h-[90vh] min-h-[70vh] w-full max-w-4xl flex-col gap-4 overflow-y-auto rounded-xl bg-card-bg p-6 shadow-card">
         <div className="flex items-start justify-between">
           {isEditingContent ? (
             <form onSubmit={handleContentSubmit} className="flex flex-1 flex-col gap-2">
