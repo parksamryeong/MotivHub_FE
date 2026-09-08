@@ -24,6 +24,8 @@ const COLUMNS: { status: Exclude<TaskStatus, 'EXPIRED'>; label: string; creatabl
   { status: 'DONE', label: '완료', creatable: false },
 ]
 
+const MEMBER_PANEL_COLLAPSED_KEY = 'motivhub-member-panel-collapsed'
+
 export function WorkspaceBoardPage(): ReactElement {
   const { id } = useParams<{ id: string }>()
   const workspaceId = Number(id)
@@ -33,6 +35,26 @@ export function WorkspaceBoardPage(): ReactElement {
   const [createStatus, setCreateStatus] = useState<TaskStatus | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
   const [dragError, setDragError] = useState<string | null>(null)
+
+  const [isMemberPanelCollapsed, setIsMemberPanelCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(MEMBER_PANEL_COLLAPSED_KEY) === 'true'
+    } catch {
+      return false
+    }
+  })
+
+  function toggleMemberPanel() {
+    setIsMemberPanelCollapsed((prev) => {
+      const next = !prev
+      try {
+        localStorage.setItem(MEMBER_PANEL_COLLAPSED_KEY, String(next))
+      } catch {
+        // localStorage 접근 불가 시 조용히 무시 — 접힘 상태가 다음 방문까지 기억되지 않을 뿐 기능엔 영향 없음
+      }
+      return next
+    })
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -152,32 +174,39 @@ export function WorkspaceBoardPage(): ReactElement {
 
           <div className="flex flex-col gap-3 rounded-xl border border-card-border p-3">
             <div>
-              <span className="text-xs font-medium text-text-secondary">
-                팀원 ({workspace.members.length}명)
-              </span>
-              <ul className="mt-2 flex flex-col gap-2">
-                {workspace.members.map((member) => (
-                  <li key={member.user.id} className="flex items-center gap-2">
-                    {member.user.profileImageUrl ? (
-                      <img
-                        src={member.user.profileImageUrl}
-                        alt={member.user.nickname}
-                        className="h-6 w-6 rounded-full"
-                      />
-                    ) : (
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-white">
-                        {member.user.nickname.slice(0, 1)}
-                      </div>
-                    )}
-                    <span className="flex-1 truncate text-sm text-text-primary">
-                      {member.user.nickname}
-                    </span>
-                    <span className="text-xs text-text-secondary">
-                      {member.role === 'OWNER' ? '오너' : '멤버'}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <button
+                type="button"
+                onClick={toggleMemberPanel}
+                className="flex w-full items-center justify-between text-xs font-medium text-text-secondary"
+              >
+                <span>팀원 ({workspace.members.length}명)</span>
+                <span>{isMemberPanelCollapsed ? '▸' : '▾'}</span>
+              </button>
+              {!isMemberPanelCollapsed && (
+                <ul className="mt-2 flex flex-col gap-2">
+                  {workspace.members.map((member) => (
+                    <li key={member.user.id} className="flex items-center gap-2">
+                      {member.user.profileImageUrl ? (
+                        <img
+                          src={member.user.profileImageUrl}
+                          alt={member.user.nickname}
+                          className="h-6 w-6 rounded-full"
+                        />
+                      ) : (
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-white">
+                          {member.user.nickname.slice(0, 1)}
+                        </div>
+                      )}
+                      <span className="flex-1 truncate text-sm text-text-primary">
+                        {member.user.nickname}
+                      </span>
+                      <span className="text-xs text-text-secondary">
+                        {member.role === 'OWNER' ? '오너' : '멤버'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
