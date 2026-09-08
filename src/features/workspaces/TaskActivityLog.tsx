@@ -1,14 +1,8 @@
 import type { ReactElement } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchTaskActivities } from '../../api/task'
+import { fetchTaskActivities, taskActivitiesQueryKey } from '../../api/task'
 import type { TaskActivityResponse, TaskStatus } from '../../api/types'
-
-const STATUS_LABELS: Record<TaskStatus, string> = {
-  WAITING: '할 일',
-  IN_PROGRESS: '진행 중',
-  DONE: '완료',
-  EXPIRED: '만료',
-}
+import { TASK_STATUS_LABELS as STATUS_LABELS } from './taskStatusLabels'
 
 function statusLabel(value: string | null): string {
   if (!value) return ''
@@ -41,7 +35,7 @@ function formatActivity(activity: TaskActivityResponse): string {
 
 export function TaskActivityLog({ taskId }: { taskId: number }): ReactElement {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['tasks', taskId, 'activities'] as const,
+    queryKey: taskActivitiesQueryKey(taskId),
     queryFn: () => fetchTaskActivities(taskId),
   })
 

@@ -4,12 +4,7 @@ import { useDraggable } from '@dnd-kit/core'
 import { updateTaskStatus } from '../../api/task'
 import { getErrorMessage } from '../../api/errors'
 import type { TaskResponse, TaskStatus } from '../../api/types'
-
-const STATUS_OPTIONS: { value: Exclude<TaskStatus, 'EXPIRED'>; label: string }[] = [
-  { value: 'WAITING', label: '할 일' },
-  { value: 'IN_PROGRESS', label: '진행 중' },
-  { value: 'DONE', label: '완료' },
-]
+import { EDITABLE_TASK_STATUS_OPTIONS as STATUS_OPTIONS } from './taskStatusLabels'
 
 export function TaskCard({
   task,

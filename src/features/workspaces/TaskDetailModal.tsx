@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   deleteTask,
   fetchTask,
+  taskActivitiesQueryKey,
   updateTask,
   updateTaskPeriod,
   updateTaskStatus,
@@ -13,12 +14,7 @@ import { TaskAssigneeList } from './TaskAssigneeList'
 import { TaskComments } from './TaskComments'
 import { TaskChecklist } from './TaskChecklist'
 import { TaskActivityLog } from './TaskActivityLog'
-
-const STATUS_OPTIONS: { value: Exclude<TaskStatus, 'EXPIRED'>; label: string }[] = [
-  { value: 'WAITING', label: '할 일' },
-  { value: 'IN_PROGRESS', label: '진행 중' },
-  { value: 'DONE', label: '완료' },
-]
+import { EDITABLE_TASK_STATUS_OPTIONS as STATUS_OPTIONS } from './taskStatusLabels'
 
 export function TaskDetailModal({
   taskId,
@@ -59,7 +55,7 @@ export function TaskDetailModal({
   function invalidateTask() {
     queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
     queryClient.invalidateQueries({ queryKey: tasksQueryKey })
-    queryClient.invalidateQueries({ queryKey: ['tasks', taskId, 'activities'] })
+    queryClient.invalidateQueries({ queryKey: taskActivitiesQueryKey(taskId) })
   }
 
   const contentMutation = useMutation({

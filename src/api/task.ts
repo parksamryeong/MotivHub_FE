@@ -98,3 +98,7 @@ export function fetchTaskActivities(taskId: number): Promise<TaskActivityRespons
     .get<TaskActivityResponse[]>(`/api/tasks/${taskId}/activities`)
     .then((res) => res.data)
 }
+
+export function taskActivitiesQueryKey(taskId: number) {
+  return ['tasks', taskId, 'activities'] as const
+}

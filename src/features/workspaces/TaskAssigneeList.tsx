@@ -1,6 +1,6 @@
 import { useState, type ReactElement } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { addAssignee, removeAssignee } from '../../api/task'
+import { addAssignee, removeAssignee, taskActivitiesQueryKey } from '../../api/task'
 import { getErrorMessage } from '../../api/errors'
 import type { TaskResponse, UserSummary } from '../../api/types'
 
@@ -28,7 +28,7 @@ export function TaskAssigneeList({
       setNewAssigneeId('')
       queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
       queryClient.invalidateQueries({ queryKey: tasksQueryKey })
-      queryClient.invalidateQueries({ queryKey: ['tasks', task.id, 'activities'] })
+      queryClient.invalidateQueries({ queryKey: taskActivitiesQueryKey(task.id) })
     },
     onError: (err) => setError(getErrorMessage(err)),
   })
@@ -39,7 +39,7 @@ export function TaskAssigneeList({
       setError(null)
       queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
       queryClient.invalidateQueries({ queryKey: tasksQueryKey })
-      queryClient.invalidateQueries({ queryKey: ['tasks', task.id, 'activities'] })
+      queryClient.invalidateQueries({ queryKey: taskActivitiesQueryKey(task.id) })
     },
     onError: (err) => setError(getErrorMessage(err)),
   })
