@@ -14,6 +14,7 @@ import { getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import type { TaskResponse, TaskStatus } from '../../api/types'
 import { BoardColumn } from './BoardColumn'
+import { WorkspaceFiles } from './WorkspaceFiles'
 import { TaskCard } from './TaskCard'
 import { TaskFormModal } from './TaskFormModal'
 import { TaskDetailModal } from './TaskDetailModal'
@@ -208,6 +209,11 @@ export function WorkspaceBoardPage(): ReactElement {
                 </ul>
               )}
             </div>
+            <WorkspaceFiles
+              workspaceId={workspaceId}
+              currentUserId={currentUserId}
+              isWorkspaceOwner={isWorkspaceOwner}
+            />
           </div>
         </div>
       </DndContext>
