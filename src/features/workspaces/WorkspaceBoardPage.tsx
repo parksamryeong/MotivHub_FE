@@ -178,6 +178,8 @@ export function WorkspaceBoardPage(): ReactElement {
               <button
                 type="button"
                 onClick={toggleMemberPanel}
+                aria-expanded={!isMemberPanelCollapsed}
+                aria-label={isMemberPanelCollapsed ? '팀원 목록 펼치기' : '팀원 목록 접기'}
                 className="flex w-full items-center justify-between text-xs font-medium text-text-secondary"
               >
                 <span>팀원 ({workspace.members.length}명)</span>

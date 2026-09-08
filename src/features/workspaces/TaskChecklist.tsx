@@ -77,6 +77,13 @@ export function TaskChecklist({
     createMutation.mutate(content.trim())
   }
 
+  function handleDelete(itemId: number) {
+    if (deleteMutation.isPending) return
+    if (confirm('이 체크리스트 항목을 삭제하시겠습니까?')) {
+      deleteMutation.mutate(itemId)
+    }
+  }
+
   const doneCount = items.filter((item) => item.isDone).length
 
   return (
@@ -87,28 +94,30 @@ export function TaskChecklist({
       <ul className="flex flex-col gap-1">
         {items.map((item) => (
           <li key={item.id} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={item.isDone}
-              disabled={
-                !canManage ||
-                (toggleMutation.isPending && toggleMutation.variables?.itemId === item.id)
-              }
-              onChange={(e) =>
-                toggleMutation.mutate({ itemId: item.id, isDone: e.target.checked })
-              }
-            />
-            <span
-              className={`flex-1 text-sm ${
-                item.isDone ? 'text-text-secondary line-through' : 'text-text-primary'
-              }`}
-            >
-              {item.content}
-            </span>
+            <label className="flex flex-1 cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={item.isDone}
+                disabled={
+                  !canManage ||
+                  (toggleMutation.isPending && toggleMutation.variables?.itemId === item.id)
+                }
+                onChange={(e) =>
+                  toggleMutation.mutate({ itemId: item.id, isDone: e.target.checked })
+                }
+              />
+              <span
+                className={`flex-1 text-sm ${
+                  item.isDone ? 'text-text-secondary line-through' : 'text-text-primary'
+                }`}
+              >
+                {item.content}
+              </span>
+            </label>
             {canManage && (
               <button
                 type="button"
-                onClick={() => deleteMutation.mutate(item.id)}
+                onClick={() => handleDelete(item.id)}
                 disabled={deleteMutation.isPending && deleteMutation.variables === item.id}
                 className="text-xs text-red-600"
               >

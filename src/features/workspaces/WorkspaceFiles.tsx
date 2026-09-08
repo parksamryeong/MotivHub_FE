@@ -81,6 +81,7 @@ export function WorkspaceFiles({
   }
 
   async function handleDownload(fileId: number) {
+    setError(null)
     try {
       const { downloadUrl } = await getFileDownloadUrl(workspaceId, fileId)
       window.open(downloadUrl, '_blank', 'noopener')
