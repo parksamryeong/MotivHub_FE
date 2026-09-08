@@ -83,7 +83,7 @@ export function WorkspaceFiles({
   async function handleDownload(fileId: number) {
     try {
       const { downloadUrl } = await getFileDownloadUrl(workspaceId, fileId)
-      window.open(downloadUrl, '_blank')
+      window.open(downloadUrl, '_blank', 'noopener')
     } catch (err) {
       setError(getErrorMessage(err))
     }
@@ -119,14 +119,14 @@ export function WorkspaceFiles({
       {isError && <p className="text-xs text-red-600">파일 목록을 불러오지 못했습니다.</p>}
       {error && <p className="text-xs text-red-600">{error}</p>}
 
-      <ul className="flex flex-col gap-1">
+      <ul className="flex max-h-64 flex-col gap-1 overflow-y-auto">
         {data?.map((file) => (
           <li key={file.id} className="flex items-center gap-1 text-xs">
             <button
               type="button"
               onClick={() => handleDownload(file.id)}
               className="flex-1 truncate text-left text-text-primary hover:underline"
-              title={file.fileName}
+              title={`${file.fileName}\n${file.uploadedBy.nickname} · ${new Date(file.createdAt).toLocaleString()}`}
             >
               {file.fileName}
             </button>
