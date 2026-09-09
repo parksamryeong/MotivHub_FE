@@ -135,3 +135,22 @@ export interface FilePresignResponse {
 export interface FileDownloadResponse {
   downloadUrl: string
 }
+
+export interface IssueResponse {
+  id: number
+  workspaceId: number
+  workspaceName: string
+  title: string
+  problemDescription: string
+  solution: string | null
+  author: UserSummary
+  createdAt: string
+  updatedAt: string
+}
+
+export interface IssueCommentResponse {
+  id: number
+  author: UserSummary
+  content: string
+  createdAt: string
+}
