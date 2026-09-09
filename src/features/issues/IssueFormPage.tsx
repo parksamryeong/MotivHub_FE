@@ -38,14 +38,14 @@ export function IssueFormPage(): ReactElement {
   )
   const [problemDescription, setProblemDescription] = useState(prefill.problemDescription ?? '')
   const [solution, setSolution] = useState('')
-  const [initialized, setInitialized] = useState(false)
+  const [initializedFor, setInitializedFor] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  if (isEditMode && issueQuery.data && !initialized) {
+  if (isEditMode && issueQuery.data && initializedFor !== issueId) {
     setTitle(issueQuery.data.title)
     setProblemDescription(issueQuery.data.problemDescription)
     setSolution(issueQuery.data.solution ?? '')
-    setInitialized(true)
+    setInitializedFor(issueId)
   }
 
   const createMutation = useMutation({
