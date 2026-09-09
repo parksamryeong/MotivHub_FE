@@ -1,4 +1,5 @@
 import { useState, type FormEvent, type ReactElement } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createComment, deleteComment, fetchComments, updateComment } from '../../api/taskComment'
 import { getErrorMessage } from '../../api/errors'
@@ -6,13 +7,16 @@ import type { TaskCommentResponse } from '../../api/types'
 
 export function TaskComments({
   taskId,
+  workspaceId,
   currentUserId,
   isWorkspaceOwner,
 }: {
   taskId: number
+  workspaceId: number
   currentUserId: number | undefined
   isWorkspaceOwner: boolean
 }): ReactElement {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const commentsQueryKey = ['tasks', taskId, 'comments'] as const
   const [commentText, setCommentText] = useState('')
@@ -139,32 +143,41 @@ export function TaskComments({
               ) : (
                 <>
                   <p className="text-sm text-text-primary">{comment.content}</p>
-                  {(canEdit || canDelete) && (
-                    <div className="mt-1 flex gap-2">
-                      {canEdit && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditDraft(comment.content)
-                            setEditingCommentId(comment.id)
-                          }}
-                          className="text-xs text-accent-subtle-text"
-                        >
-                          수정
-                        </button>
-                      )}
-                      {canDelete && (
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(comment.id)}
-                          disabled={deleteMutation.isPending}
-                          className="text-xs text-red-600"
-                        >
-                          삭제
-                        </button>
-                      )}
-                    </div>
-                  )}
+                  <div className="mt-1 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate('/issues/new', {
+                          state: { workspaceId, problemDescription: comment.content },
+                        })
+                      }
+                      className="text-xs text-accent-subtle-text"
+                    >
+                      게시판에 올리기
+                    </button>
+                    {canEdit && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditDraft(comment.content)
+                          setEditingCommentId(comment.id)
+                        }}
+                        className="text-xs text-accent-subtle-text"
+                      >
+                        수정
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(comment.id)}
+                        disabled={deleteMutation.isPending}
+                        className="text-xs text-red-600"
+                      >
+                        삭제
+                      </button>
+                    )}
+                  </div>
                 </>
               )}
             </li>

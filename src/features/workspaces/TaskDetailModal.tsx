@@ -222,6 +222,7 @@ export function TaskDetailModal({
             <TaskActivityLog taskId={taskId} />
             <TaskComments
               taskId={taskId}
+              workspaceId={workspaceId}
               currentUserId={currentUserId}
               isWorkspaceOwner={isWorkspaceOwner}
             />
