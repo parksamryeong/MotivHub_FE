@@ -122,6 +122,7 @@ export interface WorkspaceFileResponse {
   fileName: string
   fileSize: number
   contentType: string
+  category: string | null
   uploadedBy: UserSummary
   createdAt: string
 }

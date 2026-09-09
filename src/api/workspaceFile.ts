@@ -12,7 +12,7 @@ export function presignFileUpload(
 
 export function confirmFileUpload(
   workspaceId: number,
-  body: { fileKey: string; fileName: string; fileSize: number; contentType: string }
+  body: { fileKey: string; fileName: string; fileSize: number; contentType: string; category?: string }
 ): Promise<WorkspaceFileResponse> {
   return apiClient
     .post<WorkspaceFileResponse>(`/api/workspaces/${workspaceId}/files`, body)

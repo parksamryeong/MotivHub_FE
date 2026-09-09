@@ -19,6 +19,28 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`
 }
 
+function groupFilesByCategory(
+  files: WorkspaceFileResponse[]
+): { category: string | null; files: WorkspaceFileResponse[] }[] {
+  const groups = new Map<string | null, WorkspaceFileResponse[]>()
+  for (const file of files) {
+    const key = file.category
+    const existing = groups.get(key)
+    if (existing) {
+      existing.push(file)
+    } else {
+      groups.set(key, [file])
+    }
+  }
+  const entries = Array.from(groups.entries())
+  entries.sort((a, b) => {
+    if (a[0] === null) return 1
+    if (b[0] === null) return -1
+    return 0
+  })
+  return entries.map(([category, categoryFiles]) => ({ category, files: categoryFiles }))
+}
+
 export function WorkspaceFiles({
   workspaceId,
   currentUserId,
@@ -32,11 +54,16 @@ export function WorkspaceFiles({
   const filesQueryKey = ['workspaces', workspaceId, 'files'] as const
   const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [categoryDraft, setCategoryDraft] = useState('')
 
   const { data, isLoading, isError } = useQuery({
     queryKey: filesQueryKey,
     queryFn: () => fetchWorkspaceFiles(workspaceId),
   })
+
+  const existingCategories = Array.from(
+    new Set((data ?? []).map((file) => file.category).filter((c): c is string => Boolean(c)))
+  )
 
   const deleteMutation = useMutation({
     mutationFn: (fileId: number) => deleteWorkspaceFile(workspaceId, fileId),
@@ -71,7 +98,9 @@ export function WorkspaceFiles({
         fileName: file.name,
         fileSize: file.size,
         contentType: file.type || 'application/octet-stream',
+        category: categoryDraft.trim() || undefined,
       })
+      setCategoryDraft('')
       queryClient.invalidateQueries({ queryKey: filesQueryKey })
     } catch (err) {
       setError(getErrorMessage(err))
@@ -101,6 +130,8 @@ export function WorkspaceFiles({
     return isWorkspaceOwner || file.uploadedBy.id === currentUserId
   }
 
+  const groups = groupFilesByCategory(data ?? [])
+
   return (
     <div className="flex flex-col gap-2 border-t border-card-border pt-3">
       <div className="flex items-center justify-between">
@@ -116,38 +147,62 @@ export function WorkspaceFiles({
         </label>
       </div>
 
+      <input
+        value={categoryDraft}
+        onChange={(e) => setCategoryDraft(e.target.value)}
+        list="workspace-file-categories"
+        placeholder="카테고리 (선택, 예: DB)"
+        maxLength={50}
+        disabled={isUploading}
+        className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-xs text-text-primary"
+      />
+      <datalist id="workspace-file-categories">
+        {existingCategories.map((category) => (
+          <option key={category} value={category} />
+        ))}
+      </datalist>
+
       {isLoading && <p className="text-xs text-text-secondary">로딩 중...</p>}
       {isError && <p className="text-xs text-red-600">파일 목록을 불러오지 못했습니다.</p>}
       {error && <p className="text-xs text-red-600">{error}</p>}
 
-      <ul className="flex max-h-64 flex-col gap-1 overflow-y-auto">
-        {data?.map((file) => (
-          <li key={file.id} className="flex items-center gap-1 text-xs">
-            <button
-              type="button"
-              onClick={() => handleDownload(file.id)}
-              className="flex-1 truncate text-left text-text-primary hover:underline"
-              title={`${file.fileName}\n${file.uploadedBy.nickname} · ${new Date(file.createdAt).toLocaleString()}`}
-            >
-              {file.fileName}
-            </button>
-            <span className="text-text-secondary">{formatFileSize(file.fileSize)}</span>
-            {canDelete(file) && (
-              <button
-                type="button"
-                onClick={() => handleDelete(file.id)}
-                disabled={deleteMutation.isPending}
-                className="text-red-600"
-              >
-                삭제
-              </button>
-            )}
-          </li>
+      <div className="flex max-h-64 flex-col gap-3 overflow-y-auto">
+        {groups.map(({ category, files }) => (
+          <div key={category ?? '__uncategorized__'}>
+            <h4 className="mb-1 text-xs font-semibold text-text-secondary">
+              {category ?? '미분류'}
+            </h4>
+            <ul className="flex flex-col gap-1">
+              {files.map((file) => (
+                <li key={file.id} className="flex items-center gap-1 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => handleDownload(file.id)}
+                    className="flex-1 truncate text-left text-text-primary hover:underline"
+                    title={`${file.fileName}\n${file.uploadedBy.nickname} · ${new Date(file.createdAt).toLocaleString()}`}
+                  >
+                    {file.fileName}
+                  </button>
+                  <span className="text-text-secondary">{formatFileSize(file.fileSize)}</span>
+                  {canDelete(file) && (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(file.id)}
+                      disabled={deleteMutation.isPending}
+                      className="text-red-600"
+                    >
+                      삭제
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
         {data && data.length === 0 && (
-          <li className="text-xs text-text-secondary">업로드된 파일이 없습니다.</li>
+          <p className="text-xs text-text-secondary">업로드된 파일이 없습니다.</p>
         )}
-      </ul>
+      </div>
     </div>
   )
 }
