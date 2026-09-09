@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type ReactElement } from 'react'
+import { useState, type ChangeEvent, type FormEvent, type ReactElement } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   confirmFileUpload,
@@ -6,6 +6,7 @@ import {
   fetchWorkspaceFiles,
   getFileDownloadUrl,
   presignFileUpload,
+  updateFileCategory,
   uploadFileToS3,
 } from '../../api/workspaceFile'
 import { getErrorMessage } from '../../api/errors'
@@ -57,6 +58,8 @@ export function WorkspaceFiles({
   const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [categoryDraft, setCategoryDraft] = useState('')
+  const [editingCategoryFor, setEditingCategoryFor] = useState<number | null>(null)
+  const [categoryEditDraft, setCategoryEditDraft] = useState('')
 
   const { data, isLoading, isError } = useQuery({
     queryKey: filesQueryKey,
@@ -71,6 +74,17 @@ export function WorkspaceFiles({
     mutationFn: (fileId: number) => deleteWorkspaceFile(workspaceId, fileId),
     onSuccess: () => {
       setError(null)
+      queryClient.invalidateQueries({ queryKey: filesQueryKey })
+    },
+    onError: (err) => setError(getErrorMessage(err)),
+  })
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: ({ fileId, category }: { fileId: number; category: string | null }) =>
+      updateFileCategory(workspaceId, fileId, category),
+    onSuccess: () => {
+      setError(null)
+      setEditingCategoryFor(null)
       queryClient.invalidateQueries({ queryKey: filesQueryKey })
     },
     onError: (err) => setError(getErrorMessage(err)),
@@ -128,6 +142,18 @@ export function WorkspaceFiles({
     }
   }
 
+  function startEditCategory(file: WorkspaceFileResponse) {
+    setError(null)
+    setCategoryEditDraft(file.category ?? '')
+    setEditingCategoryFor(file.id)
+  }
+
+  function handleCategoryEditSubmit(e: FormEvent, fileId: number) {
+    e.preventDefault()
+    if (updateCategoryMutation.isPending) return
+    updateCategoryMutation.mutate({ fileId, category: categoryEditDraft.trim() || null })
+  }
+
   function canDelete(file: WorkspaceFileResponse): boolean {
     return isWorkspaceOwner || file.uploadedBy.id === currentUserId
   }
@@ -136,24 +162,13 @@ export function WorkspaceFiles({
 
   return (
     <div className="flex flex-col gap-2 border-t border-card-border pt-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-text-secondary">파일함</span>
-        <label className="cursor-pointer text-xs text-accent-subtle-text">
-          {isUploading ? '업로드 중...' : '+ 파일 추가'}
-          <input
-            type="file"
-            onChange={handleFileSelect}
-            disabled={isUploading}
-            className="hidden"
-          />
-        </label>
-      </div>
+      <span className="text-xs font-medium text-text-secondary">파일함</span>
 
       <input
         value={categoryDraft}
         onChange={(e) => setCategoryDraft(e.target.value)}
         list="workspace-file-categories"
-        placeholder="카테고리 (선택, 예: DB)"
+        placeholder="먼저 카테고리를 입력하세요 (선택, 예: DB)"
         maxLength={50}
         disabled={isUploading}
         className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-xs text-text-primary"
@@ -163,6 +178,16 @@ export function WorkspaceFiles({
           <option key={category} value={category} />
         ))}
       </datalist>
+
+      <label className="w-fit cursor-pointer text-xs text-accent-subtle-text">
+        {isUploading ? '업로드 중...' : '+ 파일 추가'}
+        <input
+          type="file"
+          onChange={handleFileSelect}
+          disabled={isUploading}
+          className="hidden"
+        />
+      </label>
 
       {isLoading && <p className="text-xs text-text-secondary">로딩 중...</p>}
       {isError && <p className="text-xs text-red-600">파일 목록을 불러오지 못했습니다.</p>}
@@ -176,25 +201,64 @@ export function WorkspaceFiles({
             </h4>
             <ul className="flex flex-col gap-1">
               {files.map((file) => (
-                <li key={file.id} className="flex items-center gap-1 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => handleDownload(file.id)}
-                    className="flex-1 truncate text-left text-text-primary hover:underline"
-                    title={`${file.fileName}\n${file.uploadedBy.nickname} · ${new Date(file.createdAt).toLocaleString()}`}
-                  >
-                    {file.fileName}
-                  </button>
-                  <span className="text-text-secondary">{formatFileSize(file.fileSize)}</span>
-                  {canDelete(file) && (
+                <li key={file.id} className="flex flex-col gap-1 text-xs">
+                  <div className="flex items-center gap-1">
                     <button
                       type="button"
-                      onClick={() => handleDelete(file.id)}
-                      disabled={deleteMutation.isPending}
-                      className="text-red-600"
+                      onClick={() => handleDownload(file.id)}
+                      className="flex-1 truncate text-left text-text-primary hover:underline"
+                      title={`${file.fileName}\n${file.uploadedBy.nickname} · ${new Date(file.createdAt).toLocaleString()}`}
                     >
-                      삭제
+                      {file.fileName}
                     </button>
+                    <span className="text-text-secondary">{formatFileSize(file.fileSize)}</span>
+                    <button
+                      type="button"
+                      onClick={() => startEditCategory(file)}
+                      className="text-accent-subtle-text"
+                    >
+                      카테고리 수정
+                    </button>
+                    {canDelete(file) && (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(file.id)}
+                        disabled={deleteMutation.isPending}
+                        className="text-red-600"
+                      >
+                        삭제
+                      </button>
+                    )}
+                  </div>
+                  {editingCategoryFor === file.id && (
+                    <form
+                      onSubmit={(e) => handleCategoryEditSubmit(e, file.id)}
+                      className="flex gap-1"
+                    >
+                      <input
+                        value={categoryEditDraft}
+                        onChange={(e) => setCategoryEditDraft(e.target.value)}
+                        list="workspace-file-categories"
+                        placeholder="비워두면 미분류"
+                        maxLength={50}
+                        autoFocus
+                        className="flex-1 rounded-lg border border-card-border bg-card-bg px-2 py-1 text-xs text-text-primary"
+                      />
+                      <button
+                        type="submit"
+                        disabled={updateCategoryMutation.isPending}
+                        className="rounded-lg bg-action px-2 py-1 text-xs text-action-text disabled:opacity-50"
+                      >
+                        저장
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingCategoryFor(null)}
+                        className="text-xs text-text-primary"
+                      >
+                        취소
+                      </button>
+                    </form>
                   )}
                 </li>
               ))}

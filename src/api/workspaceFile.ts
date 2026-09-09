@@ -38,6 +38,16 @@ export function deleteWorkspaceFile(workspaceId: number, fileId: number): Promis
   return apiClient.delete(`/api/workspaces/${workspaceId}/files/${fileId}`).then(() => undefined)
 }
 
+export function updateFileCategory(
+  workspaceId: number,
+  fileId: number,
+  category: string | null
+): Promise<WorkspaceFileResponse> {
+  return apiClient
+    .patch<WorkspaceFileResponse>(`/api/workspaces/${workspaceId}/files/${fileId}`, { category })
+    .then((res) => res.data)
+}
+
 export function uploadFileToS3(uploadUrl: string, file: File): Promise<void> {
   return fetch(uploadUrl, { method: 'PUT', body: file }).then((res) => {
     if (!res.ok) {
