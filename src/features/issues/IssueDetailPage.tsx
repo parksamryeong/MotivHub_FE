@@ -31,6 +31,8 @@ export function IssueDetailPage(): ReactElement {
   const deleteMutation = useMutation({
     mutationFn: () => deleteIssue(issueId),
     onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ['issues', issueId], exact: true })
+      queryClient.invalidateQueries({ queryKey: ['issues'], exact: true })
       navigate('/issues', { replace: true })
     },
     onError: (err) => setActionError(getErrorMessage(err)),

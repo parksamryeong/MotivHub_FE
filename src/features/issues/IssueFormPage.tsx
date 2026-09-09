@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type ReactElement } from 'react'
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createIssue, fetchIssue, updateIssue } from '../../api/issue'
 import { fetchWorkspaces } from '../../api/workspace'
 import { getErrorMessage } from '../../api/errors'
@@ -18,6 +18,7 @@ export function IssueFormPage(): ReactElement {
   const navigate = useNavigate()
   const location = useLocation()
   const currentUserId = useAuthStore((state) => state.user?.id)
+  const queryClient = useQueryClient()
   const prefill = (location.state ?? {}) as PrefillState
 
   const workspacesQuery = useQuery({
@@ -57,6 +58,7 @@ export function IssueFormPage(): ReactElement {
         solution: solution.trim() || undefined,
       }),
     onSuccess: (issue) => {
+      queryClient.invalidateQueries({ queryKey: ['issues'], exact: true })
       navigate(`/issues/${issue.id}`, { replace: true })
     },
     onError: (err) => setError(getErrorMessage(err)),
@@ -70,6 +72,8 @@ export function IssueFormPage(): ReactElement {
         solution: solution.trim(),
       }),
     onSuccess: (issue) => {
+      queryClient.setQueryData(['issues', issue.id], issue)
+      queryClient.invalidateQueries({ queryKey: ['issues'], exact: true })
       navigate(`/issues/${issue.id}`, { replace: true })
     },
     onError: (err) => setError(getErrorMessage(err)),

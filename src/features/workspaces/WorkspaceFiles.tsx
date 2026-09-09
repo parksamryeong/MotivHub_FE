@@ -33,6 +33,8 @@ function groupFilesByCategory(
     }
   }
   const entries = Array.from(groups.entries())
+  // 미분류(null)만 항상 맨 뒤로 보내고, 나머지 카테고리는 Map의 삽입 순서(= 최초 등장 순서)를 그대로 유지한다
+  // (Array.sort는 ES2019+ 명세상 stable sort가 보장되므로 비교값 0을 반환해도 순서가 섞이지 않는다)
   entries.sort((a, b) => {
     if (a[0] === null) return 1
     if (b[0] === null) return -1
