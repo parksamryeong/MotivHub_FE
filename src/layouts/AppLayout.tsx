@@ -76,6 +76,15 @@ export function AppLayout(): ReactElement {
               '워크스페이스'
             )}
           </NavLink>
+          <NavLink to="/issues" className={navLinkClassName} title="이슈 게시판">
+            {isCollapsed ? (
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-semibold">
+                이
+              </span>
+            ) : (
+              '이슈 게시판'
+            )}
+          </NavLink>
           <NavLink to="/mypage" className={navLinkClassName} title="마이페이지">
             {isCollapsed ? (
               <span className="flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-semibold">
