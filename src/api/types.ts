@@ -154,3 +154,31 @@ export interface IssueCommentResponse {
   content: string
   createdAt: string
 }
+
+export type NotificationType =
+  | 'DUE_DATE_APPROACHING'
+  | 'ASSIGNEE_ADDED'
+  | 'TASK_COMMENT_ADDED'
+  | 'CHECKLIST_COMPLETED'
+
+export type NotificationTargetType = 'TASK'
+
+export interface NotificationResponse {
+  id: number
+  type: NotificationType
+  targetType: NotificationTargetType
+  targetId: number
+  message: string
+  isRead: boolean
+  createdAt: string
+  readAt: string | null
+}
+
+export interface NotificationPageResponse {
+  content: NotificationResponse[]
+  totalElements: number
+  totalPages: number
+  number: number
+  size: number
+  last: boolean
+}
