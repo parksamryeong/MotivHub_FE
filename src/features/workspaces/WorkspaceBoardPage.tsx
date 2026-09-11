@@ -1,5 +1,5 @@
-import { useState, type ReactElement } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useEffect, useState, type ReactElement } from 'react'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   DndContext,
@@ -32,10 +32,28 @@ export function WorkspaceBoardPage(): ReactElement {
   const workspaceId = Number(id)
   const currentUserId = useAuthStore((state) => state.user?.id)
   const queryClient = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [createStatus, setCreateStatus] = useState<TaskStatus | null>(null)
-  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(() => {
+    const taskIdParam = searchParams.get('taskId')
+    return taskIdParam ? Number(taskIdParam) : null
+  })
   const [dragError, setDragError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (searchParams.has('taskId')) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev)
+          next.delete('taskId')
+          return next
+        },
+        { replace: true }
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const [isMemberPanelCollapsed, setIsMemberPanelCollapsed] = useState<boolean>(() => {
     try {
