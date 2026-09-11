@@ -1,6 +1,7 @@
 import { useState, type ReactElement } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { logout } from '../api/auth'
+import { NotificationBell } from '../features/notifications/NotificationBell'
 import { useAuthStore } from '../stores/authStore'
 
 const SIDEBAR_COLLAPSED_KEY = 'motivhub-sidebar-collapsed'
@@ -67,6 +68,7 @@ export function AppLayout(): ReactElement {
           </button>
         </div>
         <nav className="flex flex-1 flex-col gap-1">
+          <NotificationBell isCollapsed={isCollapsed} />
           <NavLink to="/workspaces" className={navLinkClassName} title="워크스페이스">
             {isCollapsed ? (
               <span className="flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-semibold">
