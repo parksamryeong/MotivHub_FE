@@ -35,25 +35,25 @@ export function WorkspaceBoardPage(): ReactElement {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [createStatus, setCreateStatus] = useState<TaskStatus | null>(null)
-  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(() => {
-    const taskIdParam = searchParams.get('taskId')
-    return taskIdParam ? Number(taskIdParam) : null
-  })
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
   const [dragError, setDragError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (searchParams.has('taskId')) {
-      setSearchParams(
-        (prev) => {
-          const next = new URLSearchParams(prev)
-          next.delete('taskId')
-          return next
-        },
-        { replace: true }
-      )
+    const taskIdParam = searchParams.get('taskId')
+    if (!taskIdParam) return
+    const parsed = Number(taskIdParam)
+    if (Number.isFinite(parsed)) {
+      setSelectedTaskId(parsed)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        next.delete('taskId')
+        return next
+      },
+      { replace: true }
+    )
+  }, [searchParams, setSearchParams])
 
   const [isMemberPanelCollapsed, setIsMemberPanelCollapsed] = useState<boolean>(() => {
     try {
