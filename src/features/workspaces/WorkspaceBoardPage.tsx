@@ -1,5 +1,5 @@
-import { useEffect, useState, type ReactElement } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { useRef, useState, type ReactElement } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   DndContext,
@@ -12,12 +12,12 @@ import { fetchWorkspaceDetail } from '../../api/workspace'
 import { fetchTasks, updateTaskStatus } from '../../api/task'
 import { getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
-import type { TaskResponse, TaskStatus } from '../../api/types'
+import { useTopic } from '../../realtime/useTopic'
+import type { TaskBoardChangeMessage, TaskResponse, TaskStatus } from '../../api/types'
 import { BoardColumn } from './BoardColumn'
 import { WorkspaceFiles } from './WorkspaceFiles'
 import { TaskCard } from './TaskCard'
 import { TaskFormModal } from './TaskFormModal'
-import { TaskDetailModal } from './TaskDetailModal'
 
 const COLUMNS: { status: Exclude<TaskStatus, 'EXPIRED'>; label: string; creatable: boolean }[] = [
   { status: 'WAITING', label: '할 일', creatable: true },
@@ -26,34 +26,18 @@ const COLUMNS: { status: Exclude<TaskStatus, 'EXPIRED'>; label: string; creatabl
 ]
 
 const MEMBER_PANEL_COLLAPSED_KEY = 'motivhub-member-panel-collapsed'
+const GHOST_GUARD_MS = 10_000
 
 export function WorkspaceBoardPage(): ReactElement {
   const { id } = useParams<{ id: string }>()
   const workspaceId = Number(id)
+  const isValidWorkspaceId = Number.isFinite(workspaceId)
   const currentUserId = useAuthStore((state) => state.user?.id)
   const queryClient = useQueryClient()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
 
   const [createStatus, setCreateStatus] = useState<TaskStatus | null>(null)
-  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
   const [dragError, setDragError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const taskIdParam = searchParams.get('taskId')
-    if (!taskIdParam) return
-    const parsed = Number(taskIdParam)
-    if (Number.isFinite(parsed)) {
-      setSelectedTaskId(parsed)
-    }
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev)
-        next.delete('taskId')
-        return next
-      },
-      { replace: true }
-    )
-  }, [searchParams, setSearchParams])
 
   const [isMemberPanelCollapsed, setIsMemberPanelCollapsed] = useState<boolean>(() => {
     try {
@@ -82,14 +66,53 @@ export function WorkspaceBoardPage(): ReactElement {
   const workspaceQuery = useQuery({
     queryKey: ['workspaces', workspaceId],
     queryFn: () => fetchWorkspaceDetail(workspaceId),
-    enabled: Number.isFinite(workspaceId),
+    enabled: isValidWorkspaceId,
   })
 
+  const tasksQueryKey = ['workspaces', workspaceId, 'tasks'] as const
+
   const tasksQuery = useQuery({
-    queryKey: ['workspaces', workspaceId, 'tasks'],
+    queryKey: tasksQueryKey,
     queryFn: () => fetchTasks(workspaceId),
-    enabled: Number.isFinite(workspaceId),
+    enabled: isValidWorkspaceId,
   })
+
+  const recentlyDeletedRef = useRef<Map<number, number>>(new Map())
+
+  useTopic<TaskBoardChangeMessage>(
+    isValidWorkspaceId ? `/topic/workspaces/${workspaceId}/tasks` : null,
+    (message) => {
+      const recentlyDeleted = recentlyDeletedRef.current
+      const now = Date.now()
+      for (const [id, deletedAt] of recentlyDeleted) {
+        if (now - deletedAt > GHOST_GUARD_MS) {
+          recentlyDeleted.delete(id)
+        }
+      }
+
+      if (message.changeType === 'DELETED') {
+        recentlyDeleted.set(message.taskId, now)
+        queryClient.setQueryData<TaskResponse[]>(tasksQueryKey, (old) =>
+          old?.filter((t) => t.id !== message.taskId)
+        )
+        return
+      }
+
+      // 삭제 직후 늦게 도착한 UPDATED는 무시한다(백엔드가 감수하기로 한,
+      // 근접한 타이밍의 UPDATED/DELETED 순서 역전 경합에 대한 방어).
+      if (recentlyDeleted.has(message.taskId)) return
+
+      const updatedTask = message.task
+      if (!updatedTask) return
+      queryClient.setQueryData<TaskResponse[]>(tasksQueryKey, (old) => {
+        if (!old) return old
+        const exists = old.some((t) => t.id === updatedTask.id)
+        return exists
+          ? old.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+          : [...old, updatedTask]
+      })
+    }
+  )
 
   if (workspaceQuery.isLoading || tasksQuery.isLoading) {
     return <p className="text-text-secondary">로딩 중...</p>
@@ -105,7 +128,6 @@ export function WorkspaceBoardPage(): ReactElement {
   const tasks = tasksQuery.data
   const isWorkspaceOwner = workspace.myRole === 'OWNER'
   const members = workspace.members.map((member) => member.user)
-  const tasksQueryKey = ['workspaces', workspaceId, 'tasks'] as const
 
   function tasksFor(status: TaskStatus): TaskResponse[] {
     if (status === 'IN_PROGRESS') {
@@ -184,7 +206,7 @@ export function WorkspaceBoardPage(): ReactElement {
                     workspaceId={workspaceId}
                     currentUserId={currentUserId}
                     isWorkspaceOwner={isWorkspaceOwner}
-                    onClick={() => setSelectedTaskId(task.id)}
+                    onClick={() => navigate(`/tasks/${task.id}`)}
                   />
                 ))
               )}
@@ -246,17 +268,6 @@ export function WorkspaceBoardPage(): ReactElement {
           isWorkspaceOwner={isWorkspaceOwner}
           currentUserId={currentUserId}
           onClose={() => setCreateStatus(null)}
-        />
-      )}
-
-      {selectedTaskId !== null && (
-        <TaskDetailModal
-          taskId={selectedTaskId}
-          workspaceId={workspaceId}
-          members={members}
-          currentUserId={currentUserId}
-          isWorkspaceOwner={isWorkspaceOwner}
-          onClose={() => setSelectedTaskId(null)}
         />
       )}
     </div>
