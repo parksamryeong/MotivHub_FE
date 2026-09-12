@@ -8,6 +8,7 @@ import { IssueListPage } from '../features/issues/IssueListPage'
 import { IssueFormPage } from '../features/issues/IssueFormPage'
 import { IssueDetailPage } from '../features/issues/IssueDetailPage'
 import { WorkspaceBoardPage } from '../features/workspaces/WorkspaceBoardPage'
+import { TaskDetailPage } from '../features/workspaces/TaskDetailPage'
 import { WorkspaceDetailPage } from '../features/workspaces/WorkspaceDetailPage'
 import { InviteAcceptPage } from '../features/workspaces/InviteAcceptPage'
 import { AppLayout } from '../layouts/AppLayout'
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
       { path: '/issues/:id', element: <IssueDetailPage /> },
       { path: '/issues/:id/edit', element: <IssueFormPage /> },
       { path: '/workspaces/:id', element: <WorkspaceBoardPage /> },
+      { path: '/tasks/:id', element: <TaskDetailPage /> },
       { path: '/workspaces/:id/settings', element: <WorkspaceDetailPage /> },
       { path: '*', element: <Navigate to="/workspaces" replace /> },
     ],
