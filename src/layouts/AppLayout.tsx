@@ -1,13 +1,20 @@
-import { useState, type ReactElement } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { logout } from '../api/auth'
 import { NotificationBell } from '../features/notifications/NotificationBell'
+import { stompClient } from '../realtime/stompClient'
 import { useAuthStore } from '../stores/authStore'
 
 const SIDEBAR_COLLAPSED_KEY = 'motivhub-sidebar-collapsed'
 
 export function AppLayout(): ReactElement {
   const navigate = useNavigate()
+  useEffect(() => {
+    stompClient.activate()
+    return () => {
+      stompClient.deactivate()
+    }
+  }, [])
   const clear = useAuthStore((state) => state.clear)
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
     try {
