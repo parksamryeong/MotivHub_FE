@@ -6,7 +6,6 @@ import {
   markAllNotificationsRead,
   markNotificationRead,
 } from '../../api/notification'
-import { fetchTask } from '../../api/task'
 import { getErrorMessage } from '../../api/errors'
 import type { NotificationResponse } from '../../api/types'
 
@@ -44,18 +43,13 @@ export function NotificationPanel({ onClose }: { onClose: () => void }): ReactEl
     onError: (err) => setError(getErrorMessage(err)),
   })
 
-  async function handleNotificationClick(notification: NotificationResponse) {
+  function handleNotificationClick(notification: NotificationResponse) {
     setError(null)
     if (!notification.isRead) {
       markReadMutation.mutate(notification.id)
     }
-    try {
-      const task = await fetchTask(notification.targetId)
-      onClose()
-      navigate(`/workspaces/${task.workspaceId}?taskId=${notification.targetId}`)
-    } catch (err) {
-      setError(getErrorMessage(err))
-    }
+    onClose()
+    navigate(`/tasks/${notification.targetId}`)
   }
 
   return (
