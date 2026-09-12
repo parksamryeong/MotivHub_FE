@@ -13,11 +13,12 @@ import { fetchWorkspaceDetail } from '../../api/workspace'
 import { getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import { useTopic } from '../../realtime/useTopic'
-import type { TaskChangedMessage, TaskStatus } from '../../api/types'
+import type { TaskChangedMessage, TaskPresenceMessage, TaskStatus, UserSummary } from '../../api/types'
 import { TaskAssigneeList } from './TaskAssigneeList'
 import { TaskComments } from './TaskComments'
 import { TaskChecklist } from './TaskChecklist'
 import { TaskActivityLog } from './TaskActivityLog'
+import { TaskPresenceRow } from './TaskPresenceRow'
 import { EDITABLE_TASK_STATUS_OPTIONS as STATUS_OPTIONS } from './taskStatusLabels'
 
 export function TaskDetailPage(): ReactElement {
@@ -54,6 +55,12 @@ export function TaskDetailPage(): ReactElement {
 
   useTopic<TaskChangedMessage>(isValidTaskId ? `/topic/tasks/${taskId}` : null, () => {
     queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
+  })
+
+  const [viewers, setViewers] = useState<UserSummary[]>([])
+
+  useTopic<TaskPresenceMessage>(isValidTaskId ? `/topic/tasks/${taskId}/presence` : null, (message) => {
+    setViewers(message.viewers.filter((viewer) => viewer.id !== currentUserId))
   })
 
   const [isEditingContent, setIsEditingContent] = useState(false)
@@ -185,6 +192,7 @@ export function TaskDetailPage(): ReactElement {
       <Link to={`/workspaces/${task.workspaceId}`} className="text-sm text-accent-subtle-text">
         ← 보드로 돌아가기
       </Link>
+      <TaskPresenceRow viewers={viewers} />
 
       <div className="flex items-start justify-between">
         {isEditingContent ? (
