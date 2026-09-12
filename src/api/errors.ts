@@ -9,3 +9,10 @@ export function getErrorMessage(error: unknown): string {
   }
   return DEFAULT_MESSAGE
 }
+
+export function getErrorCode(error: unknown): string | undefined {
+  if (isAxiosError<ApiErrorResponse>(error) && error.response?.data?.code) {
+    return error.response.data.code
+  }
+  return undefined
+}

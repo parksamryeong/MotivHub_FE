@@ -182,3 +182,20 @@ export interface NotificationPageResponse {
   size: number
   last: boolean
 }
+
+export type TaskChangeType = 'CREATED' | 'UPDATED' | 'DELETED'
+
+export interface TaskChangedMessage {
+  taskId: number
+}
+
+export interface TaskPresenceMessage {
+  taskId: number
+  viewers: UserSummary[]
+}
+
+export interface TaskBoardChangeMessage {
+  changeType: TaskChangeType
+  taskId: number
+  task: TaskResponse | null
+}
