@@ -10,7 +10,7 @@ import {
   updateTaskStatus,
 } from '../../api/task'
 import { fetchWorkspaceDetail } from '../../api/workspace'
-import { getErrorMessage } from '../../api/errors'
+import { getErrorCode, getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import { useTopic } from '../../realtime/useTopic'
 import type { TaskChangedMessage, TaskPresenceMessage, TaskStatus, UserSummary } from '../../api/types'
@@ -51,7 +51,15 @@ export function TaskDetailPage(): ReactElement {
     queryKey: ['workspaces', task?.workspaceId],
     queryFn: () => fetchWorkspaceDetail(task!.workspaceId),
     enabled: !!task,
+    refetchInterval: 60_000,
   })
+
+  useEffect(() => {
+    const code = getErrorCode(workspaceQuery.error)
+    if (code === 'NOT_WORKSPACE_MEMBER' || code === 'WORKSPACE_NOT_FOUND') {
+      navigate('/workspaces', { replace: true })
+    }
+  }, [workspaceQuery.error, navigate])
 
   useTopic<TaskChangedMessage>(isValidTaskId ? `/topic/tasks/${taskId}` : null, () => {
     queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
@@ -175,6 +183,14 @@ export function TaskDetailPage(): ReactElement {
     return <p className="text-text-secondary">로딩 중...</p>
   }
   if (workspaceQuery.isError || !workspaceQuery.data) {
+    const code = getErrorCode(workspaceQuery.error)
+    if (code === 'NOT_WORKSPACE_MEMBER' || code === 'WORKSPACE_NOT_FOUND') {
+      return (
+        <p className="text-red-600">
+          이 워크스페이스에 더 이상 접근할 수 없습니다. 목록으로 이동합니다...
+        </p>
+      )
+    }
     return <p className="text-red-600">워크스페이스 정보를 불러오지 못했습니다.</p>
   }
 

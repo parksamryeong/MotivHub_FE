@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactElement } from 'react'
+import { useEffect, useRef, useState, type ReactElement } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -10,7 +10,7 @@ import {
 } from '@dnd-kit/core'
 import { fetchWorkspaceDetail } from '../../api/workspace'
 import { fetchTasks, updateTaskStatus } from '../../api/task'
-import { getErrorMessage } from '../../api/errors'
+import { getErrorCode, getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import { useTopic } from '../../realtime/useTopic'
 import type { TaskBoardChangeMessage, TaskResponse, TaskStatus } from '../../api/types'
@@ -67,7 +67,15 @@ export function WorkspaceBoardPage(): ReactElement {
     queryKey: ['workspaces', workspaceId],
     queryFn: () => fetchWorkspaceDetail(workspaceId),
     enabled: isValidWorkspaceId,
+    refetchInterval: 60_000,
   })
+
+  useEffect(() => {
+    const code = getErrorCode(workspaceQuery.error)
+    if (code === 'NOT_WORKSPACE_MEMBER' || code === 'WORKSPACE_NOT_FOUND') {
+      navigate('/workspaces', { replace: true })
+    }
+  }, [workspaceQuery.error, navigate])
 
   const tasksQueryKey = ['workspaces', workspaceId, 'tasks'] as const
 
@@ -118,6 +126,14 @@ export function WorkspaceBoardPage(): ReactElement {
     return <p className="text-text-secondary">로딩 중...</p>
   }
   if (workspaceQuery.isError || !workspaceQuery.data) {
+    const code = getErrorCode(workspaceQuery.error)
+    if (code === 'NOT_WORKSPACE_MEMBER' || code === 'WORKSPACE_NOT_FOUND') {
+      return (
+        <p className="text-red-600">
+          이 워크스페이스에 더 이상 접근할 수 없습니다. 목록으로 이동합니다...
+        </p>
+      )
+    }
     return <p className="text-red-600">찾을 수 없거나 접근 권한이 없습니다.</p>
   }
   if (tasksQuery.isError || !tasksQuery.data) {
