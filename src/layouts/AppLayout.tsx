@@ -94,7 +94,12 @@ export function AppLayout(): ReactElement {
             </>
           )}
         </div>
-        <nav className="flex flex-1 flex-col gap-1">
+        <nav className="flex flex-1 flex-col gap-2">
+          {!isCollapsed && (
+            <span className="px-3 text-xs font-semibold uppercase tracking-wide text-sidebar-muted/70">
+              메뉴
+            </span>
+          )}
           <NavLink to="/workspaces" className={navLinkClassName} title="워크스페이스">
             {isCollapsed ? (
               <span className="flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-semibold">
@@ -113,6 +118,8 @@ export function AppLayout(): ReactElement {
               '이슈 게시판'
             )}
           </NavLink>
+        </nav>
+        <div className="flex flex-col gap-1">
           <NavLink to="/mypage" className={navLinkClassName} title="마이페이지">
             {isCollapsed ? (
               user?.profileImageUrl ? (
@@ -130,18 +137,20 @@ export function AppLayout(): ReactElement {
               '마이페이지'
             )}
           </NavLink>
-        </nav>
-        <button
-          type="button"
-          onClick={handleLogout}
-          title="로그아웃"
-          aria-label="로그아웃"
-          className={`rounded-lg text-sm text-sidebar-muted hover:text-white ${
-            isCollapsed ? 'flex justify-center px-0 py-2' : 'px-3 py-2 text-left'
-          }`}
-        >
-          {isCollapsed ? '⏻' : '로그아웃'}
-        </button>
+          <div className="border-t border-white/10 pt-1">
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="로그아웃"
+              aria-label="로그아웃"
+              className={`w-full rounded-lg text-sm text-sidebar-muted hover:text-white ${
+                isCollapsed ? 'flex justify-center px-0 py-2' : 'px-3 py-2 text-left'
+              }`}
+            >
+              {isCollapsed ? '⏻' : '로그아웃'}
+            </button>
+          </div>
+        </div>
       </aside>
       <main className="flex-1 bg-content-bg p-8">
         <Outlet />
