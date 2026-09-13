@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Y from 'yjs'
 import { publishMessage } from './stompClient'
 import { useTopic } from './useTopic'
@@ -27,21 +27,33 @@ export function useYjsField({
   canEdit: boolean
   initialContent: string | undefined
 }): { text: string; handleChange: (newValue: string) => void } {
-  const [ydoc] = useState(() => new Y.Doc())
+  // taskId/field가 바뀌면(같은 컴포넌트 인스턴스가 리마운트 없이 다른 태스크를 보게 되는
+  // 라우팅 케이스) 새 Y.Doc을 만든다 — 이전 태스크의 문서를 새 태스크에 이어 쓰지 않기 위함.
+  const ydoc = useMemo(() => new Y.Doc(), [taskId, field])
   const ytext = ydoc.getText('content')
   const initializedRef = useRef(false)
   const [text, setText] = useState('')
 
+  // ydoc이 바뀌면(=새 태스크/필드로 전환) 초기화 상태를 리셋한다.
+  useEffect(() => {
+    initializedRef.current = false
+    setText(ytext.toString())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ydoc])
+
   // Y.Text를 딱 한 번만 초기 내용으로 시딩한다. canEdit이 아니거나 아직 초기값을
-  // 못 받았으면 대기하고, 그 이후로는 initialContent가 바뀌어도 다시 시딩하지 않는다
-  // (REST 재조회로 값이 갱신돼도 타이핑 중인 내용을 덮어쓰지 않기 위함).
+  // 못 받았거나, 이미 내용이 있으면(원격 업데이트가 시딩보다 먼저 도착한 경우) 건너뛴다
+  // (REST 재조회로 값이 갱신돼도 타이핑 중인 내용을 덮어쓰지 않기 위함이기도 함).
   useEffect(() => {
     if (!canEdit || initializedRef.current || initialContent === undefined) return
-    ydoc.transact(() => {
-      ytext.insert(0, initialContent)
-    }, 'init')
+    if (ytext.length === 0) {
+      ydoc.transact(() => {
+        ytext.insert(0, initialContent)
+      }, 'init')
+    }
     initializedRef.current = true
-  }, [canEdit, initialContent])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canEdit, initialContent, ydoc])
 
   useEffect(() => {
     const observer = () => setText(ytext.toString())
@@ -49,7 +61,7 @@ export function useYjsField({
     setText(ytext.toString())
     return () => ytext.unobserve(observer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [ydoc])
 
   useTopic<{ update: string }>(
     canEdit ? `/topic/tasks/${taskId}/${field}/edits` : null,
@@ -78,13 +90,16 @@ export function useYjsField({
       publishMessage(`/app/tasks/${taskId}/${field}/edits`, { update: toBase64(update) })
     }
     ydoc.on('update', onUpdate)
-    return () => ydoc.off('update', onUpdate)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    return () => {
+      ydoc.off('update', onUpdate)
+      ydoc.destroy()
+    }
+  }, [ydoc, taskId, field])
 
   function handleChange(newValue: string): void {
     if (!canEdit) return
     const oldValue = ytext.toString()
+    if (oldValue === newValue) return
 
     let start = 0
     while (
