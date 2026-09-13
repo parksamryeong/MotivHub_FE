@@ -8,6 +8,7 @@ type MessageHandler = (payload: unknown) => void
 
 const subscribers = new Map<string, Set<MessageHandler>>()
 const activeSubscriptions = new Map<string, { unsubscribe: () => void }>()
+const connectListeners = new Set<() => void>()
 
 export const stompClient = new Client({
   webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws`),
@@ -24,6 +25,7 @@ export const stompClient = new Client({
     for (const destination of subscribers.keys()) {
       subscribeOnBroker(destination)
     }
+    connectListeners.forEach((listener) => listener())
   },
   onWebSocketClose: () => {
     // 물리적 연결이 끊기면 기존 구독 참조는 더 이상 유효하지 않다.
@@ -79,4 +81,11 @@ export function subscribeTopic(destination: string, handler: MessageHandler): ()
 export function publishMessage(destination: string, payload: unknown): void {
   if (!stompClient.connected) return
   stompClient.publish({ destination, body: JSON.stringify(payload) })
+}
+
+export function onStompConnect(listener: () => void): () => void {
+  connectListeners.add(listener)
+  return () => {
+    connectListeners.delete(listener)
+  }
 }
