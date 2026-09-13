@@ -34,6 +34,7 @@ export function MyPage(): ReactElement {
   if (isLoading) return <p className="text-text-secondary">로딩 중...</p>
   if (isError || !data) return <p className="text-red-600">프로필을 불러오지 못했습니다.</p>
 
+  const totalCount = workspacesQuery.data?.length ?? 0
   const ownerCount =
     workspacesQuery.data?.filter((workspace) => workspace.myRole === 'OWNER').length ?? 0
   const memberCount =
@@ -61,14 +62,18 @@ export function MyPage(): ReactElement {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 border-t border-card-border pt-4 text-center">
+        <div className="grid grid-cols-3 gap-3 border-t border-card-border pt-4 text-center">
+          <div>
+            <p className="text-2xl font-bold text-text-primary">{totalCount}</p>
+            <p className="text-xs text-text-secondary">총 워크스페이스</p>
+          </div>
           <div>
             <p className="text-2xl font-bold text-text-primary">{ownerCount}</p>
-            <p className="text-xs text-text-secondary">오너 워크스페이스</p>
+            <p className="text-xs text-text-secondary">OWNER</p>
           </div>
           <div>
             <p className="text-2xl font-bold text-text-primary">{memberCount}</p>
-            <p className="text-xs text-text-secondary">멤버 워크스페이스</p>
+            <p className="text-xs text-text-secondary">MEMBER</p>
           </div>
         </div>
       </div>

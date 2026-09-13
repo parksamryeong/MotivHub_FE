@@ -66,25 +66,31 @@ export function EditNicknameForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
-      <input
-        value={nickname}
-        onChange={(e) => setNickname(e.target.value)}
-        className="rounded-lg border border-card-border px-2 py-1 text-text-primary"
-      />
-      <button
-        type="submit"
-        disabled={!available || checking || submitting}
-        className="rounded-lg bg-action px-3 py-1 text-action-text disabled:opacity-50"
-      >
-        저장
-      </button>
-      <button type="button" onClick={onCancel} className="rounded-lg px-3 py-1 text-text-primary">
-        취소
-      </button>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <input
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          className="min-w-0 flex-1 rounded-lg border border-card-border px-2 py-1 text-text-primary"
+        />
+        <button
+          type="submit"
+          disabled={!available || checking || submitting}
+          className="flex-shrink-0 whitespace-nowrap rounded-lg bg-action px-3 py-1 text-action-text disabled:opacity-50"
+        >
+          저장
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-shrink-0 whitespace-nowrap rounded-lg px-3 py-1 text-text-primary"
+        >
+          취소
+        </button>
+      </div>
       {checking && <span className="text-sm text-text-secondary">확인 중...</span>}
       {!checking && available === false && (
-        <span className="text-sm text-red-600">사용 중인 닉네임</span>
+        <span className="text-sm text-red-600">사용 중인 닉네임입니다</span>
       )}
       {error && <span className="text-sm text-red-600">{error}</span>}
     </form>
