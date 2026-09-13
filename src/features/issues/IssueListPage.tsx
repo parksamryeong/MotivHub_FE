@@ -1,12 +1,20 @@
-import type { ReactElement } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchIssues } from '../../api/issue'
 
 export function IssueListPage(): ReactElement {
+  const [searchInput, setSearchInput] = useState('')
+  const [query, setQuery] = useState('')
+
+  useEffect(() => {
+    const timer = setTimeout(() => setQuery(searchInput.trim()), 400)
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['issues'],
-    queryFn: fetchIssues,
+    queryKey: ['issues', query],
+    queryFn: () => fetchIssues(query || undefined),
   })
 
   return (
@@ -20,6 +28,13 @@ export function IssueListPage(): ReactElement {
           새 이슈 등록
         </Link>
       </div>
+
+      <input
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+        placeholder="제목, 문제상황, 해결방법 검색..."
+        className="rounded-lg border border-card-border bg-card-bg px-3 py-2 text-sm text-text-primary"
+      />
 
       {isLoading && <p className="text-text-secondary">로딩 중...</p>}
       {isError && <p className="text-red-600">이슈 목록을 불러오지 못했습니다.</p>}
@@ -46,14 +61,19 @@ export function IssueListPage(): ReactElement {
                 </span>
               </div>
               <h2 className="text-sm font-semibold text-text-primary">{issue.title}</h2>
-              <span className="text-xs text-text-secondary">
-                {issue.author.nickname} · {new Date(issue.createdAt).toLocaleDateString()}
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-text-secondary">
+                  {issue.author.nickname} · {new Date(issue.createdAt).toLocaleDateString()}
+                </span>
+                <span className="text-xs text-text-secondary">💬 {issue.commentCount}</span>
+              </div>
             </Link>
           </li>
         ))}
         {data && data.length === 0 && (
-          <li className="text-sm text-text-secondary">아직 등록된 이슈가 없습니다.</li>
+          <li className="text-sm text-text-secondary">
+            {query ? '검색 결과가 없습니다.' : '아직 등록된 이슈가 없습니다.'}
+          </li>
         )}
       </ul>
     </div>

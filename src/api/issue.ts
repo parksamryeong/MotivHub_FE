@@ -10,8 +10,10 @@ export function createIssue(body: {
   return apiClient.post<IssueResponse>('/api/issues', body).then((res) => res.data)
 }
 
-export function fetchIssues(): Promise<IssueResponse[]> {
-  return apiClient.get<IssueResponse[]>('/api/issues').then((res) => res.data)
+export function fetchIssues(q?: string): Promise<IssueResponse[]> {
+  return apiClient
+    .get<IssueResponse[]>('/api/issues', { params: q ? { q } : undefined })
+    .then((res) => res.data)
 }
 
 export function fetchIssue(issueId: number): Promise<IssueResponse> {
@@ -44,4 +46,18 @@ export function fetchIssueComments(issueId: number): Promise<IssueCommentRespons
   return apiClient
     .get<IssueCommentResponse[]>(`/api/issues/${issueId}/comments`)
     .then((res) => res.data)
+}
+
+export function updateIssueComment(
+  issueId: number,
+  commentId: number,
+  content: string
+): Promise<IssueCommentResponse> {
+  return apiClient
+    .patch<IssueCommentResponse>(`/api/issues/${issueId}/comments/${commentId}`, { content })
+    .then((res) => res.data)
+}
+
+export function deleteIssueComment(issueId: number, commentId: number): Promise<void> {
+  return apiClient.delete(`/api/issues/${issueId}/comments/${commentId}`).then(() => undefined)
 }

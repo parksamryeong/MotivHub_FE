@@ -1,7 +1,14 @@
 import { useState, type FormEvent, type ReactElement } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { deleteIssue, fetchIssue, createIssueComment, fetchIssueComments } from '../../api/issue'
+import {
+  deleteIssue,
+  fetchIssue,
+  createIssueComment,
+  fetchIssueComments,
+  updateIssueComment,
+  deleteIssueComment,
+} from '../../api/issue'
 import { getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import { PencilIcon, TrashIcon } from '../../components/icons'
@@ -17,6 +24,8 @@ export function IssueDetailPage(): ReactElement {
   const [commentText, setCommentText] = useState('')
   const [commentError, setCommentError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
+  const [editDraft, setEditDraft] = useState('')
 
   const issueQuery = useQuery({
     queryKey: ['issues', issueId],
@@ -51,6 +60,30 @@ export function IssueDetailPage(): ReactElement {
     onError: (err) => setCommentError(getErrorMessage(err)),
   })
 
+  const updateCommentMutation = useMutation({
+    mutationFn: ({ commentId, content }: { commentId: number; content: string }) =>
+      updateIssueComment(issueId, commentId, content),
+    onSuccess: (comment) => {
+      setCommentError(null)
+      setEditingCommentId(null)
+      queryClient.setQueryData<IssueCommentResponse[]>(commentsQueryKey, (old) =>
+        old?.map((c) => (c.id === comment.id ? comment : c))
+      )
+    },
+    onError: (err) => setCommentError(getErrorMessage(err)),
+  })
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: (commentId: number) => deleteIssueComment(issueId, commentId),
+    onSuccess: (_data, commentId) => {
+      setCommentError(null)
+      queryClient.setQueryData<IssueCommentResponse[]>(commentsQueryKey, (old) =>
+        old?.filter((c) => c.id !== commentId)
+      )
+    },
+    onError: (err) => setCommentError(getErrorMessage(err)),
+  })
+
   function handleDelete() {
     if (deleteMutation.isPending) return
     if (confirm('이 이슈를 삭제하시겠습니까?')) {
@@ -62,6 +95,19 @@ export function IssueDetailPage(): ReactElement {
     e.preventDefault()
     if (!commentText.trim() || commentMutation.isPending) return
     commentMutation.mutate(commentText.trim())
+  }
+
+  function handleCommentEditSubmit(e: FormEvent, commentId: number) {
+    e.preventDefault()
+    if (!editDraft.trim() || updateCommentMutation.isPending) return
+    updateCommentMutation.mutate({ commentId, content: editDraft.trim() })
+  }
+
+  function handleCommentDelete(commentId: number) {
+    if (deleteCommentMutation.isPending) return
+    if (confirm('이 댓글을 삭제하시겠습니까?')) {
+      deleteCommentMutation.mutate(commentId)
+    }
   }
 
   if (issueQuery.isLoading) {
@@ -155,22 +201,87 @@ export function IssueDetailPage(): ReactElement {
           <p className="text-sm text-red-600">댓글을 불러오지 못했습니다.</p>
         )}
         <ul className="flex flex-col gap-2">
-          {commentsQuery.data?.map((comment) => (
-            <li
-              key={comment.id}
-              className="rounded-lg border border-card-border bg-card-bg p-3 shadow-card"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-text-primary">
-                  {comment.author.nickname}
-                </span>
-                <span className="text-xs text-text-secondary">
-                  {new Date(comment.createdAt).toLocaleString()}
-                </span>
-              </div>
-              <p className="text-sm text-text-primary">{comment.content}</p>
-            </li>
-          ))}
+          {commentsQuery.data?.map((comment) => {
+            const canManageComment = comment.author.id === currentUserId
+            const isEditingComment = editingCommentId === comment.id
+
+            return (
+              <li
+                key={comment.id}
+                className="rounded-lg border border-card-border bg-card-bg p-3 shadow-card"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-text-primary">
+                    {comment.author.nickname}
+                  </span>
+                  <span className="text-xs text-text-secondary">
+                    {new Date(comment.createdAt).toLocaleString()}
+                    {comment.updatedAt !== comment.createdAt && ' (수정됨)'}
+                  </span>
+                </div>
+                {isEditingComment ? (
+                  <form
+                    onSubmit={(e) => handleCommentEditSubmit(e, comment.id)}
+                    className="mt-2 flex flex-col gap-2"
+                  >
+                    <input
+                      value={editDraft}
+                      onChange={(e) => setEditDraft(e.target.value)}
+                      maxLength={1000}
+                      className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-sm text-text-primary"
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={!editDraft.trim() || updateCommentMutation.isPending}
+                        className="rounded-lg bg-action px-2 py-1 text-xs text-action-text disabled:opacity-50"
+                      >
+                        저장
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingCommentId(null)}
+                        className="text-xs text-text-primary"
+                      >
+                        취소
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="mt-2 flex-1 text-sm text-text-primary">{comment.content}</p>
+                    {canManageComment && (
+                      <div className="flex flex-shrink-0 items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditDraft(comment.content)
+                            setEditingCommentId(comment.id)
+                          }}
+                          aria-label="수정"
+                          title="수정"
+                          className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary hover:bg-content-bg hover:text-text-primary"
+                        >
+                          <PencilIcon />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleCommentDelete(comment.id)}
+                          disabled={deleteCommentMutation.isPending}
+                          aria-label="삭제"
+                          title="삭제"
+                          className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                        >
+                          <TrashIcon />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </li>
+            )
+          })}
           {commentsQuery.data && commentsQuery.data.length === 0 && (
             <li className="text-sm text-text-secondary">아직 댓글이 없습니다.</li>
           )}

@@ -159,6 +159,7 @@ export interface IssueResponse {
   author: UserSummary
   createdAt: string
   updatedAt: string
+  commentCount: number
 }
 
 export interface IssueCommentResponse {
@@ -166,6 +167,7 @@ export interface IssueCommentResponse {
   author: UserSummary
   content: string
   createdAt: string
+  updatedAt: string
 }
 
 export type NotificationType =
