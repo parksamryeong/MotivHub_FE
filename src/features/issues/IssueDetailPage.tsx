@@ -79,60 +79,64 @@ export function IssueDetailPage(): ReactElement {
         ← 이슈 게시판
       </Link>
 
-      <div className="flex items-center gap-2">
-        <span className="rounded-md bg-accent-subtle px-2 py-0.5 text-xs font-medium text-accent-subtle-text">
-          {issue.workspaceName}
-        </span>
-        <span
-          className={`rounded-md px-2 py-0.5 text-xs font-medium ${
-            issue.solution
-              ? 'bg-accent-subtle text-accent-subtle-text'
-              : 'bg-red-100 text-red-600'
-          }`}
-        >
-          {issue.solution ? '해결됨' : '미해결'}
-        </span>
-      </div>
-
-      <h1 className="text-2xl font-bold text-text-primary">{issue.title}</h1>
-      <span className="text-xs text-text-secondary">
-        {issue.author.nickname} · {new Date(issue.createdAt).toLocaleString()}
-        {issue.updatedAt !== issue.createdAt && ' (수정됨)'}
-      </span>
-
-      {isAuthor && (
-        <div className="flex gap-2">
-          <Link to={`/issues/${issueId}/edit`} className="text-sm text-accent-subtle-text">
-            수정
-          </Link>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-            className="text-sm text-red-600"
+      <div className="flex flex-col gap-3 rounded-xl border border-card-border bg-card-bg p-6 shadow-card">
+        <div className="flex items-center gap-2">
+          <span className="rounded-md bg-accent-subtle px-2 py-0.5 text-xs font-medium text-accent-subtle-text">
+            {issue.workspaceName}
+          </span>
+          <span
+            className={`rounded-md px-2 py-0.5 text-xs font-medium ${
+              issue.solution
+                ? 'bg-accent-subtle text-accent-subtle-text'
+                : 'bg-red-100 text-red-600'
+            }`}
           >
-            삭제
-          </button>
+            {issue.solution ? '해결됨' : '미해결'}
+          </span>
         </div>
-      )}
 
-      {actionError && <p className="text-sm text-red-600">{actionError}</p>}
+        <h1 className="text-2xl font-bold text-text-primary">{issue.title}</h1>
+        <span className="text-xs text-text-secondary">
+          {issue.author.nickname} · {new Date(issue.createdAt).toLocaleString()}
+          {issue.updatedAt !== issue.createdAt && ' (수정됨)'}
+        </span>
 
-      <div>
-        <h2 className="mb-1 text-sm font-semibold text-text-primary">문제상황/원인</h2>
-        <p className="whitespace-pre-wrap text-sm text-text-primary">{issue.problemDescription}</p>
-      </div>
-
-      <div>
-        <h2 className="mb-1 text-sm font-semibold text-text-primary">해결방법</h2>
-        {issue.solution ? (
-          <p className="whitespace-pre-wrap text-sm text-text-primary">{issue.solution}</p>
-        ) : (
-          <p className="text-sm text-text-secondary">아직 해결되지 않았습니다.</p>
+        {isAuthor && (
+          <div className="flex gap-2">
+            <Link to={`/issues/${issueId}/edit`} className="text-sm text-accent-subtle-text">
+              수정
+            </Link>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              className="text-sm text-red-600"
+            >
+              삭제
+            </button>
+          </div>
         )}
+
+        {actionError && <p className="text-sm text-red-600">{actionError}</p>}
+
+        <div>
+          <h2 className="mb-1 text-sm font-semibold text-text-primary">문제상황/원인</h2>
+          <p className="whitespace-pre-wrap text-sm text-text-primary">
+            {issue.problemDescription}
+          </p>
+        </div>
+
+        <div>
+          <h2 className="mb-1 text-sm font-semibold text-text-primary">해결방법</h2>
+          {issue.solution ? (
+            <p className="whitespace-pre-wrap text-sm text-text-primary">{issue.solution}</p>
+          ) : (
+            <p className="text-sm text-text-secondary">아직 해결되지 않았습니다.</p>
+          )}
+        </div>
       </div>
 
-      <div className="border-t border-card-border pt-3">
+      <div className="pt-1">
         <h3 className="mb-2 text-sm font-semibold text-text-primary">댓글</h3>
         {commentsQuery.isLoading && <p className="text-sm text-text-secondary">로딩 중...</p>}
         {commentsQuery.isError && (
@@ -140,7 +144,10 @@ export function IssueDetailPage(): ReactElement {
         )}
         <ul className="flex flex-col gap-2">
           {commentsQuery.data?.map((comment) => (
-            <li key={comment.id} className="rounded-lg bg-content-bg p-2">
+            <li
+              key={comment.id}
+              className="rounded-lg border border-card-border bg-card-bg p-3 shadow-card"
+            >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-text-primary">
                   {comment.author.nickname}
