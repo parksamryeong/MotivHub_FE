@@ -4,34 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { deleteIssue, fetchIssue, createIssueComment, fetchIssueComments } from '../../api/issue'
 import { getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
+import { PencilIcon, TrashIcon } from '../../components/icons'
 import type { IssueCommentResponse } from '../../api/types'
-
-function PencilIcon(): ReactElement {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
-      <path
-        d="M14.5 3.5a1.5 1.5 0 0 1 2.12 2.12l-9 9-3 .88.88-3 9-9Z"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function TrashIcon(): ReactElement {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
-      <path
-        d="M4 6h12M8 6V4.5A1.5 1.5 0 0 1 9.5 3h1A1.5 1.5 0 0 1 12 4.5V6m-6 0 .6 9.2A1.5 1.5 0 0 0 8.1 16.6h3.8a1.5 1.5 0 0 0 1.5-1.4L14 6"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
 
 export function IssueDetailPage(): ReactElement {
   const { id } = useParams<{ id: string }>()

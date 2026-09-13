@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createComment, deleteComment, fetchComments, updateComment } from '../../api/taskComment'
 import { getErrorMessage } from '../../api/errors'
+import { LightbulbIcon, PencilIcon, TrashIcon } from '../../components/icons'
 import type { TaskCommentResponse } from '../../api/types'
 
 export function TaskComments({
@@ -101,7 +102,10 @@ export function TaskComments({
           const isEditing = editingCommentId === comment.id
 
           return (
-            <li key={comment.id} className="rounded-lg bg-content-bg p-2">
+            <li
+              key={comment.id}
+              className="rounded-lg border border-card-border bg-card-bg p-3 shadow-card"
+            >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-text-primary">
                   {comment.author.nickname}
@@ -141,9 +145,9 @@ export function TaskComments({
                   </div>
                 </form>
               ) : (
-                <>
-                  <p className="text-sm text-text-primary">{comment.content}</p>
-                  <div className="mt-1 flex gap-2">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="mt-2 flex-1 text-sm text-text-primary">{comment.content}</p>
+                  <div className="flex flex-shrink-0 items-center gap-1">
                     <button
                       type="button"
                       onClick={() =>
@@ -151,9 +155,10 @@ export function TaskComments({
                           state: { workspaceId, problemDescription: comment.content },
                         })
                       }
-                      className="text-xs text-accent-subtle-text"
+                      className="inline-flex items-center gap-1 rounded-md bg-accent-subtle px-2 py-1 text-xs font-medium text-accent-subtle-text hover:opacity-80"
                     >
-                      게시판에 올리기
+                      <LightbulbIcon />
+                      이슈 등록
                     </button>
                     {canEdit && (
                       <button
@@ -162,9 +167,11 @@ export function TaskComments({
                           setEditDraft(comment.content)
                           setEditingCommentId(comment.id)
                         }}
-                        className="text-xs text-accent-subtle-text"
+                        aria-label="수정"
+                        title="수정"
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary hover:bg-content-bg hover:text-text-primary"
                       >
-                        수정
+                        <PencilIcon />
                       </button>
                     )}
                     {canDelete && (
@@ -172,13 +179,15 @@ export function TaskComments({
                         type="button"
                         onClick={() => handleDelete(comment.id)}
                         disabled={deleteMutation.isPending}
-                        className="text-xs text-red-600"
+                        aria-label="삭제"
+                        title="삭제"
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                       >
-                        삭제
+                        <TrashIcon />
                       </button>
                     )}
                   </div>
-                </>
+                </div>
               )}
             </li>
           )

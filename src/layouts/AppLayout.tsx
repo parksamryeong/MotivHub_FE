@@ -53,6 +53,15 @@ export function AppLayout(): ReactElement {
         : 'text-sidebar-muted hover:text-white'
     }`
 
+  const mainNavLinkClassName = ({ isActive }: { isActive: boolean }) =>
+    `flex items-center rounded-lg ${
+      isCollapsed ? 'justify-center px-0 py-2 text-sm' : 'px-3 py-3 text-base'
+    } ${
+      isActive
+        ? 'bg-sidebar-active font-semibold text-accent'
+        : 'text-sidebar-muted hover:text-white'
+    }`
+
   return (
     <div className="flex min-h-screen">
       <aside
@@ -94,13 +103,8 @@ export function AppLayout(): ReactElement {
             </>
           )}
         </div>
-        <nav className="flex flex-1 flex-col gap-2">
-          {!isCollapsed && (
-            <span className="px-3 text-xs font-semibold uppercase tracking-wide text-sidebar-muted/70">
-              메뉴
-            </span>
-          )}
-          <NavLink to="/workspaces" className={navLinkClassName} title="워크스페이스">
+        <nav className="flex flex-1 flex-col gap-3">
+          <NavLink to="/workspaces" className={mainNavLinkClassName} title="워크스페이스">
             {isCollapsed ? (
               <span className="flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-semibold">
                 워
@@ -109,7 +113,7 @@ export function AppLayout(): ReactElement {
               '워크스페이스'
             )}
           </NavLink>
-          <NavLink to="/issues" className={navLinkClassName} title="이슈 게시판">
+          <NavLink to="/issues" className={mainNavLinkClassName} title="이슈 게시판">
             {isCollapsed ? (
               <span className="flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-semibold">
                 이

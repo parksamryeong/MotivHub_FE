@@ -44,7 +44,7 @@ export function TaskActivityLog({ taskId }: { taskId: number }): ReactElement {
       <h3 className="mb-2 text-sm font-semibold text-text-primary">활동 로그</h3>
       {isLoading && <p className="text-sm text-text-secondary">로딩 중...</p>}
       {isError && <p className="text-sm text-red-600">활동 내역을 불러오지 못했습니다.</p>}
-      <ul className="flex flex-col gap-1">
+      <ul className="flex max-h-64 flex-col gap-1 overflow-y-auto">
         {data?.map((activity) => (
           <li key={activity.id} className="text-xs text-text-secondary">
             {formatActivity(activity)}{' '}
