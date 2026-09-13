@@ -18,6 +18,7 @@ import type { TaskChangedMessage, TaskPresenceMessage, TaskStatus, UserSummary }
 import { TaskAssigneeList } from './TaskAssigneeList'
 import { TaskComments } from './TaskComments'
 import { TaskChecklist } from './TaskChecklist'
+import { TaskNoteSection } from './TaskNoteSection'
 import { TaskActivityLog } from './TaskActivityLog'
 import { TaskPresenceRow } from './TaskPresenceRow'
 import { EDITABLE_TASK_STATUS_OPTIONS as STATUS_OPTIONS } from './taskStatusLabels'
@@ -295,6 +296,7 @@ export function TaskDetailPage(): ReactElement {
       <div className="flex flex-col gap-6 md:flex-row">
         <div className="flex flex-1 flex-col gap-4">
           <TaskChecklist taskId={taskId} items={task.checklistItems} canManage={canEditContent} />
+          <TaskNoteSection taskId={taskId} canEdit={!isKicked} />
           <TaskActivityLog taskId={taskId} />
           <TaskComments
             taskId={taskId}
