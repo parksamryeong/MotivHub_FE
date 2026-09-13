@@ -6,6 +6,33 @@ import { getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import type { IssueCommentResponse } from '../../api/types'
 
+function PencilIcon(): ReactElement {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
+      <path
+        d="M14.5 3.5a1.5 1.5 0 0 1 2.12 2.12l-9 9-3 .88.88-3 9-9Z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function TrashIcon(): ReactElement {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
+      <path
+        d="M4 6h12M8 6V4.5A1.5 1.5 0 0 1 9.5 3h1A1.5 1.5 0 0 1 12 4.5V6m-6 0 .6 9.2A1.5 1.5 0 0 0 8.1 16.6h3.8a1.5 1.5 0 0 0 1.5-1.4L14 6"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export function IssueDetailPage(): ReactElement {
   const { id } = useParams<{ id: string }>()
   const issueId = Number(id)
@@ -80,42 +107,53 @@ export function IssueDetailPage(): ReactElement {
       </Link>
 
       <div className="flex flex-col gap-3 rounded-xl border border-card-border bg-card-bg p-6 shadow-card">
-        <div className="flex items-center gap-2">
-          <span className="rounded-md bg-accent-subtle px-2 py-0.5 text-xs font-medium text-accent-subtle-text">
-            {issue.workspaceName}
-          </span>
-          <span
-            className={`rounded-md px-2 py-0.5 text-xs font-medium ${
-              issue.solution
-                ? 'bg-accent-subtle text-accent-subtle-text'
-                : 'bg-red-100 text-red-600'
-            }`}
-          >
-            {issue.solution ? '해결됨' : '미해결'}
-          </span>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="rounded-md bg-accent-subtle px-2 py-0.5 text-xs font-medium text-accent-subtle-text">
+              {issue.workspaceName}
+            </span>
+            <span
+              className={`rounded-md px-2 py-0.5 text-xs font-medium ${
+                issue.solution
+                  ? 'bg-accent-subtle text-accent-subtle-text'
+                  : 'bg-red-100 text-red-600'
+              }`}
+            >
+              {issue.solution ? '해결됨' : '미해결'}
+            </span>
+          </div>
+
+          {isAuthor && (
+            <div className="flex items-center gap-1">
+              <Link
+                to={`/issues/${issueId}/edit`}
+                aria-label="수정"
+                title="수정"
+                className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary hover:bg-content-bg hover:text-text-primary"
+              >
+                <PencilIcon />
+              </Link>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+                aria-label="삭제"
+                title="삭제"
+                className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+              >
+                <TrashIcon />
+              </button>
+            </div>
+          )}
         </div>
 
         <h1 className="text-2xl font-bold text-text-primary">{issue.title}</h1>
-        <span className="text-xs text-text-secondary">
-          {issue.author.nickname} · {new Date(issue.createdAt).toLocaleString()}
-          {issue.updatedAt !== issue.createdAt && ' (수정됨)'}
-        </span>
-
-        {isAuthor && (
-          <div className="flex gap-2">
-            <Link to={`/issues/${issueId}/edit`} className="text-sm text-accent-subtle-text">
-              수정
-            </Link>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className="text-sm text-red-600"
-            >
-              삭제
-            </button>
-          </div>
-        )}
+        <div className="text-right">
+          <span className="text-xs text-text-secondary">
+            {issue.author.nickname} · {new Date(issue.createdAt).toLocaleString()}
+            {issue.updatedAt !== issue.createdAt && ' (수정됨)'}
+          </span>
+        </div>
 
         {actionError && <p className="text-sm text-red-600">{actionError}</p>}
 
