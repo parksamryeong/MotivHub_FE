@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { checkNicknameAvailable, updateNickname } from '../../api/user'
 import { useAuthStore } from '../../stores/authStore'
 import { consumePendingInviteToken } from '../workspaces/pendingInvite'
+import { getNicknameFormatError } from '../mypage/nicknameFormat'
 
 export function OnboardingNicknamePage(): ReactElement {
   const navigate = useNavigate()
@@ -12,6 +13,7 @@ export function OnboardingNicknamePage(): ReactElement {
   const [checking, setChecking] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [formatError, setFormatError] = useState<string | null>(null)
   const nicknameRef = useRef('')
 
   useEffect(() => {
@@ -19,9 +21,18 @@ export function OnboardingNicknamePage(): ReactElement {
     setChecking(false)
 
     if (!nickname) {
+      setFormatError(null)
       setAvailable(null)
       return
     }
+
+    const formatIssue = getNicknameFormatError(nickname)
+    setFormatError(formatIssue)
+    if (formatIssue) {
+      setAvailable(false)
+      return
+    }
+
     setChecking(true)
     setAvailable(null)
     const nicknameToCheck = nickname
@@ -81,7 +92,7 @@ export function OnboardingNicknamePage(): ReactElement {
             <p className="text-sm text-green-600">사용 가능한 닉네임입니다</p>
           )}
           {!checking && available === false && (
-            <p className="text-sm text-red-600">이미 사용 중인 닉네임입니다</p>
+            <p className="text-sm text-red-600">{formatError ?? '이미 사용 중인 닉네임입니다'}</p>
           )}
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button

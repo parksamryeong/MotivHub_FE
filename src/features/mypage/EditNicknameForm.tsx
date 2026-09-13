@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, type FormEvent, type ReactElement } from 'react'
 import { checkNicknameAvailable, updateNickname } from '../../api/user'
+import { getNicknameFormatError } from './nicknameFormat'
 import type { UserProfile } from '../../api/types'
 
 export function EditNicknameForm({
@@ -16,6 +17,7 @@ export function EditNicknameForm({
   const [checking, setChecking] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [formatError, setFormatError] = useState<string | null>(null)
   const nicknameRef = useRef(currentNickname)
 
   useEffect(() => {
@@ -23,9 +25,18 @@ export function EditNicknameForm({
     setChecking(false)
 
     if (!nickname || nickname === currentNickname) {
+      setFormatError(null)
       setAvailable(nickname === currentNickname ? true : null)
       return
     }
+
+    const formatIssue = getNicknameFormatError(nickname)
+    setFormatError(formatIssue)
+    if (formatIssue) {
+      setAvailable(false)
+      return
+    }
+
     setChecking(true)
     setAvailable(null)
     const nicknameToCheck = nickname
@@ -90,7 +101,9 @@ export function EditNicknameForm({
       </div>
       {checking && <span className="text-sm text-text-secondary">확인 중...</span>}
       {!checking && available === false && (
-        <span className="text-sm text-red-600">사용 중인 닉네임입니다</span>
+        <span className="text-sm text-red-600">
+          {formatError ?? '사용 중인 닉네임입니다'}
+        </span>
       )}
       {error && <span className="text-sm text-red-600">{error}</span>}
     </form>
