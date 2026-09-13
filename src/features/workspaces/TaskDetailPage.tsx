@@ -231,63 +231,76 @@ export function TaskDetailPage(): ReactElement {
       </Link>
       <TaskPresenceRow viewers={viewers} />
 
-      <div className="flex items-start justify-between">
-        {isEditingContent ? (
-          <form onSubmit={handleContentSubmit} className="flex flex-1 flex-col gap-2">
-            <input
-              value={nameDraft}
-              onChange={(e) => setNameDraft(e.target.value)}
-              maxLength={100}
-              className="rounded-lg border border-card-border bg-card-bg px-3 py-2 text-text-primary"
-            />
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={!nameDraft.trim() || contentMutation.isPending}
-                className="rounded-lg bg-action px-3 py-2 text-action-text disabled:opacity-50"
-              >
-                저장
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditingContent(false)}
-                className="rounded-lg px-3 py-2 text-text-primary"
-              >
-                취소
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div className="flex-1">
-            <h1 className="text-lg font-bold text-text-primary">{task.name}</h1>
-            {canEditContent ? (
-              <textarea
-                value={descriptionText}
-                onChange={(e) => handleDescriptionChange(e.target.value)}
-                maxLength={2000}
-                placeholder="설명을 입력하세요"
-                className="mt-1 w-full rounded-lg border border-card-border bg-card-bg px-3 py-2 text-sm text-text-primary"
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
+          {isEditingContent ? (
+            <form onSubmit={handleContentSubmit} className="flex flex-col gap-2">
+              <input
+                value={nameDraft}
+                onChange={(e) => setNameDraft(e.target.value)}
+                maxLength={100}
+                className="rounded-lg border border-card-border bg-card-bg px-3 py-2 text-text-primary"
               />
-            ) : (
-              descriptionText && (
-                <p className="mt-1 whitespace-pre-wrap text-sm text-text-secondary">
-                  {descriptionText}
-                </p>
-              )
-            )}
-            {canEditContent && (
-              <button
-                type="button"
-                onClick={() => {
-                  setNameDraft(task.name)
-                  setIsEditingContent(true)
-                }}
-                className="mt-1 text-sm text-accent-subtle-text"
-              >
-                이름 수정
-              </button>
-            )}
-          </div>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={!nameDraft.trim() || contentMutation.isPending}
+                  className="rounded-lg bg-action px-3 py-2 text-action-text disabled:opacity-50"
+                >
+                  저장
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingContent(false)}
+                  className="rounded-lg px-3 py-2 text-text-primary"
+                >
+                  취소
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold text-text-primary">{task.name}</h1>
+              {canEditContent ? (
+                <textarea
+                  value={descriptionText}
+                  onChange={(e) => handleDescriptionChange(e.target.value)}
+                  maxLength={2000}
+                  placeholder="설명을 입력하세요"
+                  className="mt-2 w-full rounded-lg border border-card-border bg-card-bg px-3 py-2 text-sm text-text-primary"
+                />
+              ) : (
+                descriptionText && (
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-text-secondary">
+                    {descriptionText}
+                  </p>
+                )
+              )}
+              {canEditContent && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNameDraft(task.name)
+                    setIsEditingContent(true)
+                  }}
+                  className="mt-2 rounded-lg bg-action px-3 py-1 text-sm text-action-text"
+                >
+                  제목 수정
+                </button>
+              )}
+            </>
+          )}
+        </div>
+
+        {canDelete && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+            className="flex-shrink-0 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          >
+            태스크 삭제
+          </button>
         )}
       </div>
 
@@ -297,7 +310,6 @@ export function TaskDetailPage(): ReactElement {
         <div className="flex flex-1 flex-col gap-4">
           <TaskChecklist taskId={taskId} items={task.checklistItems} canManage={canEditContent} />
           <TaskNoteSection taskId={taskId} canEdit={!isKicked} />
-          <TaskActivityLog taskId={taskId} />
           <TaskComments
             taskId={taskId}
             workspaceId={task.workspaceId}
@@ -399,16 +411,9 @@ export function TaskDetailPage(): ReactElement {
             canManage={canEditContent}
           />
 
-          {canDelete && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className="self-start text-sm text-red-600"
-            >
-              태스크 삭제
-            </button>
-          )}
+          <div className="mt-4">
+            <TaskActivityLog taskId={taskId} />
+          </div>
         </div>
       </div>
     </div>
