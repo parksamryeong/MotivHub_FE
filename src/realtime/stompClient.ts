@@ -75,3 +75,8 @@ export function subscribeTopic(destination: string, handler: MessageHandler): ()
     }
   }
 }
+
+export function publishMessage(destination: string, payload: unknown): void {
+  if (!stompClient.connected) return
+  stompClient.publish({ destination, body: JSON.stringify(payload) })
+}

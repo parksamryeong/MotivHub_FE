@@ -199,3 +199,10 @@ export interface TaskBoardChangeMessage {
   taskId: number
   task: TaskResponse | null
 }
+
+export interface TaskNoteResponse {
+  taskId: number
+  content: string | null
+  updatedBy: UserSummary | null
+  updatedAt: string | null
+}
