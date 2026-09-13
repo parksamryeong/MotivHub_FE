@@ -28,11 +28,20 @@ export interface NicknameCheckResponse {
 
 export type WorkspaceRole = 'OWNER' | 'MEMBER'
 
+export interface WorkspaceTaskCounts {
+  waiting: number
+  inProgress: number
+  done: number
+  expired: number
+}
+
 export interface WorkspaceResponse {
   id: number
   name: string
   myRole: WorkspaceRole
   createdAt: string
+  taskCounts: WorkspaceTaskCounts
+  memberCount: number
 }
 
 export interface UserSummary {
@@ -47,7 +56,11 @@ export interface MemberSummary {
   joinedAt: string
 }
 
-export interface WorkspaceDetailResponse extends WorkspaceResponse {
+export interface WorkspaceDetailResponse {
+  id: number
+  name: string
+  myRole: WorkspaceRole
+  createdAt: string
   members: MemberSummary[]
 }
 

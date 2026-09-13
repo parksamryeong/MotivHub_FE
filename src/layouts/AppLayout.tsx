@@ -16,6 +16,7 @@ export function AppLayout(): ReactElement {
     }
   }, [])
   const clear = useAuthStore((state) => state.clear)
+  const user = useAuthStore((state) => state.user)
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
     try {
       return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'
@@ -60,22 +61,40 @@ export function AppLayout(): ReactElement {
         }`}
       >
         <div
-          className={`mb-8 flex items-center ${
-            isCollapsed ? 'justify-center' : 'justify-between px-3'
+          className={`mb-4 flex items-center border-b border-white/10 pb-4 ${
+            isCollapsed ? 'flex-col gap-2 justify-center' : 'justify-between px-3'
           }`}
         >
-          {!isCollapsed && <span className="text-lg font-bold text-white">MotivHub</span>}
-          <button
-            type="button"
-            onClick={toggleCollapsed}
-            aria-label={isCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
-            className="rounded-lg px-2 py-1 text-sidebar-muted hover:text-white"
-          >
-            {isCollapsed ? '»' : '«'}
-          </button>
+          {isCollapsed ? (
+            <>
+              <NotificationBell />
+              <button
+                type="button"
+                onClick={toggleCollapsed}
+                aria-label="사이드바 펼치기"
+                className="rounded-lg px-2 py-1 text-sidebar-muted hover:text-white"
+              >
+                »
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-white">MotivHub</span>
+                <NotificationBell />
+              </div>
+              <button
+                type="button"
+                onClick={toggleCollapsed}
+                aria-label="사이드바 접기"
+                className="rounded-lg px-2 py-1 text-sidebar-muted hover:text-white"
+              >
+                «
+              </button>
+            </>
+          )}
         </div>
         <nav className="flex flex-1 flex-col gap-1">
-          <NotificationBell isCollapsed={isCollapsed} />
           <NavLink to="/workspaces" className={navLinkClassName} title="워크스페이스">
             {isCollapsed ? (
               <span className="flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-semibold">
@@ -96,9 +115,17 @@ export function AppLayout(): ReactElement {
           </NavLink>
           <NavLink to="/mypage" className={navLinkClassName} title="마이페이지">
             {isCollapsed ? (
-              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-semibold">
-                마
-              </span>
+              user?.profileImageUrl ? (
+                <img
+                  src={user.profileImageUrl}
+                  alt={user.nickname}
+                  className="h-7 w-7 rounded-full object-cover"
+                />
+              ) : (
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-xs font-semibold text-white">
+                  {user?.nickname.slice(0, 1) ?? '마'}
+                </span>
+              )
             ) : (
               '마이페이지'
             )}

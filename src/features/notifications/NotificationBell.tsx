@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchUnreadCount } from '../../api/notification'
 import { NotificationPanel } from './NotificationPanel'
 
-export function NotificationBell({ isCollapsed }: { isCollapsed: boolean }): ReactElement {
+export function NotificationBell(): ReactElement {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -30,11 +30,9 @@ export function NotificationBell({ isCollapsed }: { isCollapsed: boolean }): Rea
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-label="알림"
-        className={`relative flex items-center rounded-lg text-sm text-sidebar-muted hover:text-white ${
-          isCollapsed ? 'justify-center px-0 py-2' : 'px-3 py-2'
-        }`}
+        className="relative flex h-8 w-8 items-center justify-center rounded-lg text-sidebar-muted hover:text-white"
       >
-        <span>{isCollapsed ? '🔔' : '🔔 알림'}</span>
+        <span>🔔</span>
         {!!unreadCount && (
           <span className="absolute right-1 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">
             {unreadCount}

@@ -18,6 +18,7 @@ import { BoardColumn } from './BoardColumn'
 import { WorkspaceFiles } from './WorkspaceFiles'
 import { TaskCard } from './TaskCard'
 import { TaskFormModal } from './TaskFormModal'
+import { recordRecentWorkspace } from './recentWorkspaces'
 
 const COLUMNS: { status: Exclude<TaskStatus, 'EXPIRED'>; label: string; creatable: boolean }[] = [
   { status: 'WAITING', label: '할 일', creatable: true },
@@ -38,6 +39,12 @@ export function WorkspaceBoardPage(): ReactElement {
 
   const [createStatus, setCreateStatus] = useState<TaskStatus | null>(null)
   const [dragError, setDragError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (isValidWorkspaceId) {
+      recordRecentWorkspace(workspaceId)
+    }
+  }, [isValidWorkspaceId, workspaceId])
 
   const [isMemberPanelCollapsed, setIsMemberPanelCollapsed] = useState<boolean>(() => {
     try {
