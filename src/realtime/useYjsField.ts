@@ -92,7 +92,6 @@ export function useYjsField({
     ydoc.on('update', onUpdate)
     return () => {
       ydoc.off('update', onUpdate)
-      ydoc.destroy()
     }
   }, [ydoc, taskId, field])
 
