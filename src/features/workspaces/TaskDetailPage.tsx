@@ -13,6 +13,7 @@ import { fetchWorkspaceDetail } from '../../api/workspace'
 import { getErrorCode, getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import { useTopic } from '../../realtime/useTopic'
+import { useYjsField } from '../../realtime/useYjsField'
 import type { TaskChangedMessage, TaskPresenceMessage, TaskStatus, UserSummary } from '../../api/types'
 import { TaskAssigneeList } from './TaskAssigneeList'
 import { TaskComments } from './TaskComments'
@@ -54,12 +55,19 @@ export function TaskDetailPage(): ReactElement {
     refetchInterval: 60_000,
   })
 
+  const [isKicked, setIsKicked] = useState(false)
+
   useEffect(() => {
     const code = getErrorCode(workspaceQuery.error)
     if (code === 'NOT_WORKSPACE_MEMBER' || code === 'WORKSPACE_NOT_FOUND') {
+      setIsKicked(true)
       navigate('/workspaces', { replace: true })
     }
   }, [workspaceQuery.error, navigate])
+
+  const canEditContent =
+    workspaceQuery.data?.myRole === 'OWNER' ||
+    (task?.assignees.some((assignee) => assignee.id === currentUserId) ?? false)
 
   useTopic<TaskChangedMessage>(task ? `/topic/tasks/${taskId}` : null, () => {
     queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
@@ -71,9 +79,15 @@ export function TaskDetailPage(): ReactElement {
     setViewers(message.viewers.filter((viewer) => viewer.id !== currentUserId))
   })
 
+  const { text: descriptionText, handleChange: handleDescriptionChange } = useYjsField({
+    taskId,
+    field: 'description',
+    canEdit: canEditContent && !isKicked,
+    initialContent: task ? (task.description ?? '') : undefined,
+  })
+
   const [isEditingContent, setIsEditingContent] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
-  const [descriptionDraft, setDescriptionDraft] = useState('')
   const [isEditingPeriod, setIsEditingPeriod] = useState(false)
   const [startDateDraft, setStartDateDraft] = useState('')
   const [dueDateDraft, setDueDateDraft] = useState('')
@@ -152,7 +166,7 @@ export function TaskDetailPage(): ReactElement {
     if (!nameDraft.trim() || contentMutation.isPending) return
     contentMutation.mutate({
       name: nameDraft.trim(),
-      description: descriptionDraft.trim() || undefined,
+      description: descriptionText || undefined,
     })
   }
 
@@ -205,8 +219,6 @@ export function TaskDetailPage(): ReactElement {
   const workspace = workspaceQuery.data
   const members = workspace.members.map((member) => member.user)
   const isWorkspaceOwner = workspace.myRole === 'OWNER'
-  const isAssignee = task.assignees.some((assignee) => assignee.id === currentUserId)
-  const canEditContent = isWorkspaceOwner || isAssignee
   const canEditPeriod = isWorkspaceOwner
   const canDelete =
     isWorkspaceOwner || (task.createdBy.id === currentUserId && task.status !== 'EXPIRED')
@@ -225,12 +237,6 @@ export function TaskDetailPage(): ReactElement {
               value={nameDraft}
               onChange={(e) => setNameDraft(e.target.value)}
               maxLength={100}
-              className="rounded-lg border border-card-border bg-card-bg px-3 py-2 text-text-primary"
-            />
-            <textarea
-              value={descriptionDraft}
-              onChange={(e) => setDescriptionDraft(e.target.value)}
-              maxLength={2000}
               className="rounded-lg border border-card-border bg-card-bg px-3 py-2 text-text-primary"
             />
             <div className="flex gap-2">
@@ -253,22 +259,31 @@ export function TaskDetailPage(): ReactElement {
         ) : (
           <div className="flex-1">
             <h1 className="text-lg font-bold text-text-primary">{task.name}</h1>
-            {task.description && (
-              <p className="mt-1 whitespace-pre-wrap text-sm text-text-secondary">
-                {task.description}
-              </p>
+            {canEditContent ? (
+              <textarea
+                value={descriptionText}
+                onChange={(e) => handleDescriptionChange(e.target.value)}
+                maxLength={2000}
+                placeholder="설명을 입력하세요"
+                className="mt-1 w-full rounded-lg border border-card-border bg-card-bg px-3 py-2 text-sm text-text-primary"
+              />
+            ) : (
+              descriptionText && (
+                <p className="mt-1 whitespace-pre-wrap text-sm text-text-secondary">
+                  {descriptionText}
+                </p>
+              )
             )}
             {canEditContent && (
               <button
                 type="button"
                 onClick={() => {
                   setNameDraft(task.name)
-                  setDescriptionDraft(task.description ?? '')
                   setIsEditingContent(true)
                 }}
                 className="mt-1 text-sm text-accent-subtle-text"
               >
-                수정
+                이름 수정
               </button>
             )}
           </div>
