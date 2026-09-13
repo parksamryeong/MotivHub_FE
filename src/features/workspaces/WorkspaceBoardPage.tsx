@@ -88,7 +88,7 @@ export function WorkspaceBoardPage(): ReactElement {
   const recentlyDeletedRef = useRef<Map<number, number>>(new Map())
 
   useTopic<TaskBoardChangeMessage>(
-    isValidWorkspaceId ? `/topic/workspaces/${workspaceId}/tasks` : null,
+    workspaceQuery.data ? `/topic/workspaces/${workspaceId}/tasks` : null,
     (message) => {
       const recentlyDeleted = recentlyDeletedRef.current
       const now = Date.now()

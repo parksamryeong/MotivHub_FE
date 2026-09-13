@@ -61,13 +61,13 @@ export function TaskDetailPage(): ReactElement {
     }
   }, [workspaceQuery.error, navigate])
 
-  useTopic<TaskChangedMessage>(isValidTaskId ? `/topic/tasks/${taskId}` : null, () => {
+  useTopic<TaskChangedMessage>(task ? `/topic/tasks/${taskId}` : null, () => {
     queryClient.invalidateQueries({ queryKey: taskQueryKey, exact: true })
   })
 
   const [viewers, setViewers] = useState<UserSummary[]>([])
 
-  useTopic<TaskPresenceMessage>(isValidTaskId ? `/topic/tasks/${taskId}/presence` : null, (message) => {
+  useTopic<TaskPresenceMessage>(task ? `/topic/tasks/${taskId}/presence` : null, (message) => {
     setViewers(message.viewers.filter((viewer) => viewer.id !== currentUserId))
   })
 
@@ -78,6 +78,14 @@ export function TaskDetailPage(): ReactElement {
   const [startDateDraft, setStartDateDraft] = useState('')
   const [dueDateDraft, setDueDateDraft] = useState('')
   const [actionError, setActionError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setIsEditingContent(false)
+    setIsEditingPeriod(false)
+    setActionError(null)
+    workspaceIdRef.current = null
+    setViewers([])
+  }, [taskId])
 
   function goBackToBoard() {
     const workspaceId = workspaceIdRef.current

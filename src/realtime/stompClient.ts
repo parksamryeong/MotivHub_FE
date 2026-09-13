@@ -30,6 +30,12 @@ export const stompClient = new Client({
     // 재연결되면 onConnect가 subscribers에 남아있는 destination을 전부 다시 구독한다.
     activeSubscriptions.clear()
   },
+  onStompError: (frame) => {
+    console.warn('[stomp] broker error:', frame.headers.message, frame.body)
+  },
+  onWebSocketError: (event) => {
+    console.warn('[stomp] websocket error:', event)
+  },
 })
 
 function subscribeOnBroker(destination: string) {
