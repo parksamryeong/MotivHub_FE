@@ -10,6 +10,7 @@ import {
   uploadFileToS3,
 } from '../../api/workspaceFile'
 import { getErrorMessage } from '../../api/errors'
+import { PencilIcon, TrashIcon } from '../../components/icons'
 import type { WorkspaceFileResponse } from '../../api/types'
 
 const MAX_FILE_SIZE = 52_428_800
@@ -57,6 +58,7 @@ export function WorkspaceFiles({
   const filesQueryKey = ['workspaces', workspaceId, 'files'] as const
   const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [isAddingFile, setIsAddingFile] = useState(false)
   const [categoryDraft, setCategoryDraft] = useState('')
   const [editingCategoryFor, setEditingCategoryFor] = useState<number | null>(null)
   const [categoryEditDraft, setCategoryEditDraft] = useState('')
@@ -117,6 +119,7 @@ export function WorkspaceFiles({
         category: categoryDraft.trim() || undefined,
       })
       setCategoryDraft('')
+      setIsAddingFile(false)
       queryClient.invalidateQueries({ queryKey: filesQueryKey })
     } catch (err) {
       setError(getErrorMessage(err))
@@ -164,30 +167,56 @@ export function WorkspaceFiles({
     <div className="flex flex-col gap-2 border-t border-card-border pt-3">
       <span className="text-xs font-medium text-text-secondary">파일함</span>
 
-      <input
-        value={categoryDraft}
-        onChange={(e) => setCategoryDraft(e.target.value)}
-        list="workspace-file-categories"
-        placeholder="먼저 카테고리를 입력하세요 (선택, 예: DB)"
-        maxLength={50}
-        disabled={isUploading}
-        className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-xs text-text-primary"
-      />
       <datalist id="workspace-file-categories">
         {existingCategories.map((category) => (
           <option key={category} value={category} />
         ))}
       </datalist>
 
-      <label className="w-fit cursor-pointer text-xs text-accent-subtle-text">
-        {isUploading ? '업로드 중...' : '+ 파일 추가'}
-        <input
-          type="file"
-          onChange={handleFileSelect}
-          disabled={isUploading}
-          className="hidden"
-        />
-      </label>
+      {isAddingFile ? (
+        <div className="flex flex-col gap-1">
+          <input
+            value={categoryDraft}
+            onChange={(e) => setCategoryDraft(e.target.value)}
+            list="workspace-file-categories"
+            placeholder="카테고리 입력 (선택, 예: DB)"
+            maxLength={50}
+            disabled={isUploading}
+            autoFocus
+            className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-xs text-text-primary"
+          />
+          <div className="flex items-center gap-2">
+            <label className="w-fit cursor-pointer rounded-lg border border-action px-2 py-1 text-xs font-medium text-action hover:bg-action/10">
+              {isUploading ? '업로드 중...' : '파일 선택'}
+              <input
+                type="file"
+                onChange={handleFileSelect}
+                disabled={isUploading}
+                className="hidden"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                setIsAddingFile(false)
+                setCategoryDraft('')
+              }}
+              disabled={isUploading}
+              className="text-xs text-text-secondary disabled:opacity-50"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setIsAddingFile(true)}
+          className="w-fit rounded-lg border border-action px-2 py-1 text-xs font-medium text-action hover:bg-action/10"
+        >
+          + 파일 추가
+        </button>
+      )}
 
       {isLoading && <p className="text-xs text-text-secondary">로딩 중...</p>}
       {isError && <p className="text-xs text-red-600">파일 목록을 불러오지 못했습니다.</p>}
@@ -196,9 +225,9 @@ export function WorkspaceFiles({
       <div className="flex max-h-64 flex-col gap-3 overflow-y-auto">
         {groups.map(({ category, files }) => (
           <div key={category ?? '__uncategorized__'}>
-            <h4 className="mb-1 text-xs font-semibold text-text-secondary">
+            <span className="mb-1 inline-block rounded-md bg-accent-subtle px-2 py-0.5 text-xs font-semibold text-accent-subtle-text">
               {category ?? '미분류'}
-            </h4>
+            </span>
             <ul className="flex flex-col gap-1">
               {files.map((file) => (
                 <li key={file.id} className="flex flex-col gap-1 text-xs">
@@ -215,25 +244,29 @@ export function WorkspaceFiles({
                     <button
                       type="button"
                       onClick={() => startEditCategory(file)}
-                      className="text-accent-subtle-text"
+                      aria-label="카테고리 수정"
+                      title="카테고리 수정"
+                      className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-content-bg hover:text-text-primary"
                     >
-                      카테고리 수정
+                      <PencilIcon className="h-3.5 w-3.5" />
                     </button>
                     {canDelete(file) && (
                       <button
                         type="button"
                         onClick={() => handleDelete(file.id)}
                         disabled={deleteMutation.isPending}
-                        className="text-red-600"
+                        aria-label="삭제"
+                        title="삭제"
+                        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                       >
-                        삭제
+                        <TrashIcon className="h-3.5 w-3.5" />
                       </button>
                     )}
                   </div>
                   {editingCategoryFor === file.id && (
                     <form
                       onSubmit={(e) => handleCategoryEditSubmit(e, file.id)}
-                      className="flex gap-1"
+                      className="flex flex-col gap-1"
                     >
                       <input
                         value={categoryEditDraft}
@@ -242,22 +275,24 @@ export function WorkspaceFiles({
                         placeholder="비워두면 미분류"
                         maxLength={50}
                         autoFocus
-                        className="flex-1 rounded-lg border border-card-border bg-card-bg px-2 py-1 text-xs text-text-primary"
+                        className="w-full min-w-0 rounded-lg border border-card-border bg-card-bg px-2 py-1 text-xs text-text-primary"
                       />
-                      <button
-                        type="submit"
-                        disabled={updateCategoryMutation.isPending}
-                        className="rounded-lg bg-action px-2 py-1 text-xs text-action-text disabled:opacity-50"
-                      >
-                        저장
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditingCategoryFor(null)}
-                        className="text-xs text-text-primary"
-                      >
-                        취소
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="submit"
+                          disabled={updateCategoryMutation.isPending}
+                          className="flex-shrink-0 whitespace-nowrap rounded-lg bg-action px-2 py-1 text-xs text-action-text disabled:opacity-50"
+                        >
+                          저장
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingCategoryFor(null)}
+                          className="flex-shrink-0 whitespace-nowrap text-xs text-text-primary"
+                        >
+                          취소
+                        </button>
+                      </div>
                     </form>
                   )}
                 </li>
