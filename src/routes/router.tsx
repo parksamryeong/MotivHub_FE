@@ -11,6 +11,7 @@ import { WorkspaceBoardPage } from '../features/workspaces/WorkspaceBoardPage'
 import { TaskDetailPage } from '../features/workspaces/TaskDetailPage'
 import { WorkspaceDetailPage } from '../features/workspaces/WorkspaceDetailPage'
 import { InviteAcceptPage } from '../features/workspaces/InviteAcceptPage'
+import { MyTasksPage } from '../features/tasks/MyTasksPage'
 import { AppLayout } from '../layouts/AppLayout'
 import { ProtectedRoute } from './ProtectedRoute'
 
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
       { path: '/issues/new', element: <IssueFormPage /> },
       { path: '/issues/:id', element: <IssueDetailPage /> },
       { path: '/issues/:id/edit', element: <IssueFormPage /> },
+      { path: '/my-tasks', element: <MyTasksPage /> },
       { path: '/workspaces/:id', element: <WorkspaceBoardPage /> },
       { path: '/tasks/:id', element: <TaskDetailPage /> },
       { path: '/workspaces/:id/settings', element: <WorkspaceDetailPage /> },

@@ -122,6 +122,15 @@ export function AppLayout(): ReactElement {
               '이슈 게시판'
             )}
           </NavLink>
+          <NavLink to="/my-tasks" className={mainNavLinkClassName} title="내 할 일">
+            {isCollapsed ? (
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-current text-xs font-semibold">
+                내
+              </span>
+            ) : (
+              '내 할 일'
+            )}
+          </NavLink>
         </nav>
         <div className="flex flex-col gap-1">
           <NavLink to="/mypage" className={navLinkClassName} title="마이페이지">
