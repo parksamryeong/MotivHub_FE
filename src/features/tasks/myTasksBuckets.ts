@@ -25,7 +25,7 @@ export function parseDateOnly(dateStr: string): Date {
   return new Date(year, month - 1, day)
 }
 
-function dateOnlyTime(date: Date): number {
+export function dateOnlyTime(date: Date): number {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
 }
 
@@ -60,6 +60,10 @@ export function groupMyTasksByUrgency(tasks: MyTaskResponse[], today: Date): MyT
       grouped.TODAY.push(task)
     } else if (dueTime > todayTime && dueTime <= weekEndTime) {
       grouped.THIS_WEEK.push(task)
+    } else if (dueTime < todayTime) {
+      // 서버의 야간 배치가 아직 돌지 않아 status가 EXPIRED로 갱신되기 전인,
+      // 마감일이 지난 작업도 지연됨 버킷으로 분류한다.
+      grouped.OVERDUE.push(task)
     } else {
       grouped.UPCOMING.push(task)
     }

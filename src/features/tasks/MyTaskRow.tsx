@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updateTaskStatus } from '../../api/task'
 import { getErrorMessage } from '../../api/errors'
-import { parseDateOnly } from './myTasksBuckets'
+import { parseDateOnly, dateOnlyTime } from './myTasksBuckets'
 import type { MyTaskResponse } from '../../api/types'
 
 export function MyTaskRow({
@@ -28,7 +28,12 @@ export function MyTaskRow({
   })
 
   const overdueDays = isOverdue
-    ? Math.max(1, Math.round((Date.now() - parseDateOnly(task.dueDate).getTime()) / 86_400_000))
+    ? Math.max(
+        1,
+        Math.round(
+          (dateOnlyTime(new Date()) - dateOnlyTime(parseDateOnly(task.dueDate))) / 86_400_000
+        )
+      )
     : 0
 
   return (
@@ -36,9 +41,12 @@ export function MyTaskRow({
       <div className="flex items-center gap-3">
         <input
           type="checkbox"
-          onChange={() => completeMutation.mutate()}
+          checked={false}
+          onChange={(e) => {
+            if (e.target.checked) completeMutation.mutate()
+          }}
           disabled={completeMutation.isPending}
-          aria-label="완료 처리"
+          aria-label={`${task.name} 완료 처리`}
           className="h-4 w-4 flex-shrink-0 accent-action"
         />
         <Link
