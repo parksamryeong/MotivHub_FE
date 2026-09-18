@@ -130,6 +130,18 @@ export interface TaskActivityResponse {
   createdAt: string
 }
 
+export interface MyTaskResponse {
+  taskId: number
+  name: string
+  dueDate: string
+  status: TaskStatus
+  workspaceId: number
+  workspaceName: string
+  checklistTotal: number
+  checklistCompleted: number
+  hasComments: boolean
+}
+
 export interface WorkspaceFileResponse {
   id: number
   fileName: string

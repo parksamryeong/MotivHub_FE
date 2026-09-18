@@ -1,6 +1,7 @@
 import { apiClient } from './client'
 import type {
   ChecklistItemResponse,
+  MyTaskResponse,
   TaskActivityResponse,
   TaskDetailResponse,
   TaskResponse,
@@ -29,6 +30,10 @@ export function fetchTasks(workspaceId: number): Promise<TaskResponse[]> {
 
 export function fetchTask(taskId: number): Promise<TaskDetailResponse> {
   return apiClient.get<TaskDetailResponse>(`/api/tasks/${taskId}`).then((res) => res.data)
+}
+
+export function fetchMyTasks(): Promise<MyTaskResponse[]> {
+  return apiClient.get<MyTaskResponse[]>('/api/tasks/mine').then((res) => res.data)
 }
 
 export function updateTask(
