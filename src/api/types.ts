@@ -62,6 +62,7 @@ export interface WorkspaceDetailResponse {
   myRole: WorkspaceRole
   createdAt: string
   members: MemberSummary[]
+  taskCounts: WorkspaceTaskCounts
 }
 
 export interface WorkspaceInviteResponse {

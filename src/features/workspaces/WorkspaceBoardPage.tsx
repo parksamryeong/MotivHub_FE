@@ -160,6 +160,9 @@ export function WorkspaceBoardPage(): ReactElement {
     return tasks.filter((task) => task.status === status)
   }
 
+  const completionPercent =
+    tasks.length === 0 ? 0 : Math.round((tasksFor('DONE').length / tasks.length) * 100)
+
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (!over) return
@@ -202,6 +205,38 @@ export function WorkspaceBoardPage(): ReactElement {
         >
           ⚙ 설정
         </Link>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="rounded-xl bg-card-bg p-4 text-center shadow-card">
+          <p className="text-2xl font-bold text-text-primary">{tasksFor('WAITING').length}</p>
+          <p className="text-xs text-text-secondary">할 일</p>
+        </div>
+        <div className="rounded-xl bg-card-bg p-4 text-center shadow-card">
+          <p className="text-2xl font-bold text-text-primary">{tasksFor('IN_PROGRESS').length}</p>
+          <p className="text-xs text-text-secondary">진행 중</p>
+        </div>
+        <div className="rounded-xl bg-card-bg p-4 text-center shadow-card">
+          <p className="text-2xl font-bold text-text-primary">{tasksFor('DONE').length}</p>
+          <p className="text-xs text-text-secondary">완료</p>
+        </div>
+        <div className="flex flex-col justify-center gap-2 rounded-xl bg-card-bg p-4 shadow-card">
+          <p className="text-xs text-text-secondary">진행률</p>
+          <div className="flex items-center gap-2">
+            <div className="h-2 min-w-0 flex-1 rounded-full bg-content-bg">
+              <div
+                className="h-2 rounded-full transition-[width,background-color]"
+                style={{
+                  width: `${completionPercent}%`,
+                  backgroundColor: `hsl(${completionPercent * 1.2}, 75%, 45%)`,
+                }}
+              />
+            </div>
+            <span className="flex-shrink-0 text-sm font-semibold text-text-primary">
+              {completionPercent}%
+            </span>
+          </div>
+        </div>
       </div>
 
       {dragError && (
