@@ -188,6 +188,7 @@ export type NotificationType =
   | 'ASSIGNEE_ADDED'
   | 'TASK_COMMENT_ADDED'
   | 'CHECKLIST_COMPLETED'
+  | 'MENTIONED'
 
 export type NotificationTargetType = 'TASK'
 
