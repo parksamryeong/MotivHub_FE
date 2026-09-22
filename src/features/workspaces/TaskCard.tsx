@@ -1,10 +1,12 @@
 import { useState, type ReactElement } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDraggable } from '@dnd-kit/core'
-import { updateTaskStatus } from '../../api/task'
+import { duplicateTask, updateTaskStatus } from '../../api/task'
 import { getErrorMessage } from '../../api/errors'
+import { CopyIcon } from '../../components/icons'
 import type { TaskResponse, TaskStatus } from '../../api/types'
 import { EDITABLE_TASK_STATUS_OPTIONS as STATUS_OPTIONS } from './taskStatusLabels'
+import { PriorityBadge } from './taskPriority'
 
 export function TaskCard({
   task,
@@ -42,6 +44,16 @@ export function TaskCard({
     onError: (err) => setError(getErrorMessage(err)),
   })
 
+  const duplicateMutation = useMutation({
+    mutationFn: () => duplicateTask(task.id),
+    onSuccess: () => {
+      setError(null)
+      queryClient.invalidateQueries({ queryKey: ['workspaces', workspaceId, 'tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['my-tasks'] })
+    },
+    onError: (err) => setError(getErrorMessage(err)),
+  })
+
   return (
     <div
       ref={setNodeRef}
@@ -59,11 +71,22 @@ export function TaskCard({
         >
           {task.name}
         </button>
+        <PriorityBadge priority={task.priority} />
         {task.status === 'EXPIRED' && (
           <span className="rounded-md bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
             만료
           </span>
         )}
+        <button
+          type="button"
+          onClick={() => duplicateMutation.mutate()}
+          disabled={duplicateMutation.isPending}
+          aria-label="태스크 복제"
+          title="태스크 복제"
+          className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-content-bg hover:text-text-primary disabled:opacity-50"
+        >
+          <CopyIcon className="h-3.5 w-3.5" />
+        </button>
       </div>
       <div className="flex items-center gap-1">
         {task.assignees.map((assignee) =>

@@ -1,12 +1,18 @@
 import type { ReactElement } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchTaskActivities, taskActivitiesQueryKey } from '../../api/task'
-import type { TaskActivityResponse, TaskStatus } from '../../api/types'
+import type { TaskActivityResponse, TaskPriority, TaskStatus } from '../../api/types'
+import { TASK_PRIORITY_LABELS } from './taskPriority'
 import { TASK_STATUS_LABELS as STATUS_LABELS } from './taskStatusLabels'
 
 function statusLabel(value: string | null): string {
   if (!value) return ''
   return STATUS_LABELS[value as TaskStatus] ?? value
+}
+
+function priorityLabel(value: string | null): string {
+  if (!value) return ''
+  return TASK_PRIORITY_LABELS[value as TaskPriority] ?? value
 }
 
 function formatActivity(activity: TaskActivityResponse): string {
@@ -22,6 +28,10 @@ function formatActivity(activity: TaskActivityResponse): string {
       return `${actor}님이 기간을 ${activity.oldValue} → ${activity.newValue}(으)로 변경했습니다.`
     case 'CHANGE_STATUS':
       return `${actor}님이 상태를 ${statusLabel(activity.oldValue)} → ${statusLabel(
+        activity.newValue
+      )}(으)로 변경했습니다.`
+    case 'CHANGE_PRIORITY':
+      return `${actor}님이 우선순위를 ${priorityLabel(activity.oldValue)} → ${priorityLabel(
         activity.newValue
       )}(으)로 변경했습니다.`
     case 'ADD_ASSIGNEE':

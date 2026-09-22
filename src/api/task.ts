@@ -4,6 +4,7 @@ import type {
   MyTaskResponse,
   TaskActivityResponse,
   TaskDetailResponse,
+  TaskPriority,
   TaskResponse,
   TaskStatus,
 } from './types'
@@ -13,6 +14,7 @@ export interface CreateTaskRequest {
   description?: string
   startDate: string
   dueDate: string
+  priority?: TaskPriority
   assigneeIds?: number[]
 }
 
@@ -32,8 +34,10 @@ export function fetchTask(taskId: number): Promise<TaskDetailResponse> {
   return apiClient.get<TaskDetailResponse>(`/api/tasks/${taskId}`).then((res) => res.data)
 }
 
-export function fetchMyTasks(): Promise<MyTaskResponse[]> {
-  return apiClient.get<MyTaskResponse[]>('/api/tasks/mine').then((res) => res.data)
+export function fetchMyTasks(status?: TaskStatus): Promise<MyTaskResponse[]> {
+  return apiClient
+    .get<MyTaskResponse[]>('/api/tasks/mine', { params: status ? { status } : undefined })
+    .then((res) => res.data)
 }
 
 export function updateTask(
@@ -59,6 +63,16 @@ export function updateTaskStatus(
   return apiClient
     .patch<TaskResponse>(`/api/tasks/${taskId}/status`, { status })
     .then((res) => res.data)
+}
+
+export function updateTaskPriority(taskId: number, priority: TaskPriority): Promise<TaskResponse> {
+  return apiClient
+    .patch<TaskResponse>(`/api/tasks/${taskId}/priority`, { priority })
+    .then((res) => res.data)
+}
+
+export function duplicateTask(taskId: number): Promise<TaskResponse> {
+  return apiClient.post<TaskResponse>(`/api/tasks/${taskId}/duplicate`).then((res) => res.data)
 }
 
 export function deleteTask(taskId: number): Promise<void> {

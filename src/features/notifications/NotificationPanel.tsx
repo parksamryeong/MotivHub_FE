@@ -7,9 +7,18 @@ import {
   markNotificationRead,
 } from '../../api/notification'
 import { getErrorMessage } from '../../api/errors'
-import type { NotificationResponse } from '../../api/types'
+import type { NotificationResponse, NotificationType } from '../../api/types'
 
 const PAGE_SIZE = 20
+
+const NOTIFICATION_ICONS: Record<NotificationType, string> = {
+  DUE_DATE_APPROACHING: '⏰',
+  TASK_OVERDUE: '🔴',
+  ASSIGNEE_ADDED: '👤',
+  TASK_COMMENT_ADDED: '💬',
+  CHECKLIST_COMPLETED: '✅',
+  MENTIONED: '@',
+}
 
 export function NotificationPanel({ onClose }: { onClose: () => void }): ReactElement {
   const navigate = useNavigate()
@@ -53,7 +62,7 @@ export function NotificationPanel({ onClose }: { onClose: () => void }): ReactEl
   }
 
   return (
-    <div className="absolute left-full top-0 z-50 ml-2 flex w-80 flex-col gap-2 rounded-xl bg-card-bg p-3 shadow-card">
+    <div className="absolute right-0 top-full z-50 mt-2 flex w-80 flex-col gap-2 rounded-xl bg-card-bg p-3 shadow-card">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary">알림</h3>
         <button
@@ -80,7 +89,12 @@ export function NotificationPanel({ onClose }: { onClose: () => void }): ReactEl
               notification.isRead ? 'text-text-secondary' : 'font-semibold text-text-primary'
             }`}
           >
-            <p>{notification.message}</p>
+            <p className="flex items-start gap-1.5">
+              <span className="flex-shrink-0" aria-hidden="true">
+                {NOTIFICATION_ICONS[notification.type]}
+              </span>
+              <span>{notification.message}</span>
+            </p>
             <span className="text-[10px] font-normal text-text-secondary">
               {new Date(notification.createdAt).toLocaleString()}
             </span>

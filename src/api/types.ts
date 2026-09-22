@@ -80,6 +80,8 @@ export interface ApiErrorResponse {
 
 export type TaskStatus = 'WAITING' | 'IN_PROGRESS' | 'DONE' | 'EXPIRED'
 
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+
 export interface TaskResponse {
   id: number
   workspaceId: number
@@ -88,9 +90,11 @@ export interface TaskResponse {
   startDate: string
   dueDate: string
   status: TaskStatus
+  priority: TaskPriority
   assignees: UserSummary[]
   createdBy: UserSummary
   createdAt: string
+  completedAt: string | null
 }
 
 export interface TaskCommentResponse {
@@ -120,6 +124,7 @@ export type TaskActivityAction =
   | 'CHANGE_STATUS'
   | 'ADD_ASSIGNEE'
   | 'REMOVE_ASSIGNEE'
+  | 'CHANGE_PRIORITY'
 
 export interface TaskActivityResponse {
   id: number
@@ -136,11 +141,13 @@ export interface MyTaskResponse {
   name: string
   dueDate: string
   status: TaskStatus
+  priority: TaskPriority
   workspaceId: number
   workspaceName: string
   checklistTotal: number
   checklistCompleted: number
   hasComments: boolean
+  completedAt: string | null
 }
 
 export interface WorkspaceFileResponse {
@@ -189,6 +196,7 @@ export type NotificationType =
   | 'TASK_COMMENT_ADDED'
   | 'CHECKLIST_COMPLETED'
   | 'MENTIONED'
+  | 'TASK_OVERDUE'
 
 export type NotificationTargetType = 'TASK'
 

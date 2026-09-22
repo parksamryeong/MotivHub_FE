@@ -2,7 +2,8 @@ import { useState, type FormEvent, type ReactElement } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createTask, updateTaskStatus } from '../../api/task'
 import { getErrorMessage } from '../../api/errors'
-import type { TaskStatus, UserSummary } from '../../api/types'
+import type { TaskPriority, TaskStatus, UserSummary } from '../../api/types'
+import { TASK_PRIORITY_OPTIONS } from './taskPriority'
 
 export function TaskFormModal({
   workspaceId,
@@ -26,6 +27,7 @@ export function TaskFormModal({
   const [description, setDescription] = useState('')
   const [startDate, setStartDate] = useState('')
   const [dueDate, setDueDate] = useState('')
+  const [priority, setPriority] = useState<TaskPriority>('MEDIUM')
   const [assigneeIds, setAssigneeIds] = useState<number[]>(
     mustIncludeSelf && currentUserId !== undefined ? [currentUserId] : []
   )
@@ -39,6 +41,7 @@ export function TaskFormModal({
         description: description.trim() || undefined,
         startDate,
         dueDate,
+        priority,
         assigneeIds: assigneeIds.length > 0 ? assigneeIds : undefined,
       })
       if (defaultStatus === 'WAITING') {
@@ -112,6 +115,20 @@ export function TaskFormModal({
               onChange={(e) => setDueDate(e.target.value)}
               className="flex-1 rounded-lg border border-card-border bg-card-bg px-3 py-2 text-text-primary"
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-text-secondary">우선순위</span>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as TaskPriority)}
+              className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-sm text-text-primary"
+            >
+              {TASK_PRIORITY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <span className="text-sm text-text-secondary">담당자</span>

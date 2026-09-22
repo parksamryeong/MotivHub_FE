@@ -3,10 +3,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   deleteTask,
+  duplicateTask,
   fetchTask,
   taskActivitiesQueryKey,
   updateTask,
   updateTaskPeriod,
+  updateTaskPriority,
   updateTaskStatus,
 } from '../../api/task'
 import { fetchWorkspaceDetail } from '../../api/workspace'
@@ -14,7 +16,14 @@ import { getErrorCode, getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import { useTopic } from '../../realtime/useTopic'
 import { useYjsField } from '../../realtime/useYjsField'
-import type { TaskChangedMessage, TaskPresenceMessage, TaskStatus, UserSummary } from '../../api/types'
+import type {
+  TaskChangedMessage,
+  TaskPresenceMessage,
+  TaskPriority,
+  TaskStatus,
+  UserSummary,
+} from '../../api/types'
+import { TASK_PRIORITY_LABELS, TASK_PRIORITY_OPTIONS } from './taskPriority'
 import { TaskAssigneeList } from './TaskAssigneeList'
 import { TaskComments } from './TaskComments'
 import { TaskChecklist } from './TaskChecklist'
@@ -144,6 +153,29 @@ export function TaskDetailPage(): ReactElement {
     onSuccess: () => {
       setActionError(null)
       invalidateTask()
+    },
+    onError: (error) => setActionError(getErrorMessage(error)),
+  })
+
+  const priorityMutation = useMutation({
+    mutationFn: (priority: TaskPriority) => updateTaskPriority(taskId, priority),
+    onSuccess: () => {
+      setActionError(null)
+      invalidateTask()
+    },
+    onError: (error) => setActionError(getErrorMessage(error)),
+  })
+
+  const duplicateMutation = useMutation({
+    mutationFn: () => duplicateTask(taskId),
+    onSuccess: (newTask) => {
+      if (workspaceIdRef.current !== null) {
+        queryClient.invalidateQueries({
+          queryKey: ['workspaces', workspaceIdRef.current, 'tasks'],
+        })
+      }
+      queryClient.invalidateQueries({ queryKey: ['my-tasks'] })
+      navigate(`/tasks/${newTask.id}`)
     },
     onError: (error) => setActionError(getErrorMessage(error)),
   })
@@ -292,16 +324,26 @@ export function TaskDetailPage(): ReactElement {
           )}
         </div>
 
-        {canDelete && (
+        <div className="flex flex-shrink-0 items-center gap-2">
           <button
             type="button"
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-            className="flex-shrink-0 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            onClick={() => duplicateMutation.mutate()}
+            disabled={duplicateMutation.isPending}
+            className="flex-shrink-0 rounded-lg border border-action px-3 py-1.5 text-sm font-medium text-action hover:bg-action/10 disabled:opacity-50"
           >
-            태스크 삭제
+            {duplicateMutation.isPending ? '복제 중...' : '태스크 복제'}
           </button>
-        )}
+          {canDelete && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              className="flex-shrink-0 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            >
+              태스크 삭제
+            </button>
+          )}
+        </div>
       </div>
 
       {actionError && <p className="text-sm text-red-600">{actionError}</p>}
@@ -400,6 +442,28 @@ export function TaskDetailPage(): ReactElement {
                 <p className="text-sm text-text-primary">
                   {STATUS_OPTIONS.find((option) => option.value === task.status)?.label}
                 </p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <span className="text-sm text-text-secondary">우선순위</span>
+            <div className="mt-1">
+              {canEditContent ? (
+                <select
+                  value={task.priority}
+                  onChange={(e) => priorityMutation.mutate(e.target.value as TaskPriority)}
+                  disabled={priorityMutation.isPending}
+                  className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-sm text-text-primary"
+                >
+                  {TASK_PRIORITY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-sm text-text-primary">{TASK_PRIORITY_LABELS[task.priority]}</p>
               )}
             </div>
           </div>
