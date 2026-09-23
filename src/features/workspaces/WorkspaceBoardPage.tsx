@@ -18,7 +18,10 @@ import { BoardColumn } from './BoardColumn'
 import { WorkspaceFiles } from './WorkspaceFiles'
 import { TaskCard } from './TaskCard'
 import { TaskFormModal } from './TaskFormModal'
+import { TaskCalendar } from './TaskCalendar'
 import { recordRecentWorkspace } from './recentWorkspaces'
+
+type BoardView = 'BOARD' | 'CALENDAR'
 
 const COLUMNS: { status: Exclude<TaskStatus, 'EXPIRED'>; label: string; creatable: boolean }[] = [
   { status: 'WAITING', label: '할 일', creatable: true },
@@ -39,6 +42,7 @@ export function WorkspaceBoardPage(): ReactElement {
 
   const [createStatus, setCreateStatus] = useState<TaskStatus | null>(null)
   const [dragError, setDragError] = useState<string | null>(null)
+  const [view, setView] = useState<BoardView>('BOARD')
 
   useEffect(() => {
     if (isValidWorkspaceId) {
@@ -199,12 +203,38 @@ export function WorkspaceBoardPage(): ReactElement {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-text-primary">{workspace.name}</h1>
-        <Link
-          to={`/workspaces/${workspaceId}/settings`}
-          className="text-sm text-accent-subtle-text"
-        >
-          ⚙ 설정
-        </Link>
+        <div className="flex items-center gap-4">
+          <div className="flex gap-1 rounded-lg border border-card-border bg-card-bg p-0.5">
+            <button
+              type="button"
+              onClick={() => setView('BOARD')}
+              className={`rounded-md px-3 py-1 text-sm font-medium ${
+                view === 'BOARD'
+                  ? 'bg-action text-action-text'
+                  : 'text-text-secondary hover:bg-content-bg'
+              }`}
+            >
+              보드
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('CALENDAR')}
+              className={`rounded-md px-3 py-1 text-sm font-medium ${
+                view === 'CALENDAR'
+                  ? 'bg-action text-action-text'
+                  : 'text-text-secondary hover:bg-content-bg'
+              }`}
+            >
+              캘린더
+            </button>
+          </div>
+          <Link
+            to={`/workspaces/${workspaceId}/settings`}
+            className="text-sm text-accent-subtle-text"
+          >
+            ⚙ 설정
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl bg-card-bg px-4 py-3 shadow-card">
@@ -237,31 +267,37 @@ export function WorkspaceBoardPage(): ReactElement {
 
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_1fr_200px]">
-          {COLUMNS.map((column) => (
-            <BoardColumn
-              key={column.status}
-              status={column.status}
-              label={column.label}
-              count={tasksFor(column.status).length}
-              creatable={column.creatable}
-              onAddClick={() => setCreateStatus(column.status)}
-            >
-              {tasksFor(column.status).length === 0 ? (
-                <p className="text-xs text-text-secondary">아직 태스크가 없습니다.</p>
-              ) : (
-                tasksFor(column.status).map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    workspaceId={workspaceId}
-                    currentUserId={currentUserId}
-                    isWorkspaceOwner={isWorkspaceOwner}
-                    onClick={() => navigate(`/tasks/${task.id}`)}
-                  />
-                ))
-              )}
-            </BoardColumn>
-          ))}
+          {view === 'CALENDAR' ? (
+            <div className="md:col-span-3">
+              <TaskCalendar tasks={tasks} onTaskClick={(taskId) => navigate(`/tasks/${taskId}`)} />
+            </div>
+          ) : (
+            COLUMNS.map((column) => (
+              <BoardColumn
+                key={column.status}
+                status={column.status}
+                label={column.label}
+                count={tasksFor(column.status).length}
+                creatable={column.creatable}
+                onAddClick={() => setCreateStatus(column.status)}
+              >
+                {tasksFor(column.status).length === 0 ? (
+                  <p className="text-xs text-text-secondary">아직 태스크가 없습니다.</p>
+                ) : (
+                  tasksFor(column.status).map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      workspaceId={workspaceId}
+                      currentUserId={currentUserId}
+                      isWorkspaceOwner={isWorkspaceOwner}
+                      onClick={() => navigate(`/tasks/${task.id}`)}
+                    />
+                  ))
+                )}
+              </BoardColumn>
+            ))
+          )}
 
           <div className="flex flex-col gap-3 rounded-xl border border-card-border p-3">
             <div>

@@ -106,6 +106,17 @@ export function NotificationPanel({ onClose }: { onClose: () => void }): ReactEl
           </button>
         )}
       </div>
+
+      <button
+        type="button"
+        onClick={() => {
+          onClose()
+          navigate('/notifications')
+        }}
+        className="border-t border-card-border pt-2 text-center text-xs text-accent-subtle-text"
+      >
+        전체 보기
+      </button>
     </div>
   )
 }

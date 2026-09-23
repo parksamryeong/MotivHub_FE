@@ -15,7 +15,7 @@ export const TASK_PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
   { value: 'LOW', label: TASK_PRIORITY_LABELS.LOW },
 ]
 
-const BADGE_CLASSES: Record<TaskPriority, string> = {
+export const PRIORITY_BADGE_CLASSES: Record<TaskPriority, string> = {
   URGENT: 'bg-red-100 text-red-600',
   HIGH: 'bg-orange-100 text-orange-600',
   MEDIUM: 'bg-content-bg text-text-secondary',
@@ -34,7 +34,7 @@ export function PriorityBadge({ priority }: { priority: TaskPriority }): ReactEl
   if (priority === 'MEDIUM') return null
   return (
     <span
-      className={`flex-shrink-0 rounded-md px-2 py-0.5 text-xs font-medium ${BADGE_CLASSES[priority]}`}
+      className={`flex-shrink-0 rounded-md px-2 py-0.5 text-xs font-medium ${PRIORITY_BADGE_CLASSES[priority]}`}
     >
       {TASK_PRIORITY_LABELS[priority]}
     </span>

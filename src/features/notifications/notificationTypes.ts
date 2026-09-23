@@ -10,7 +10,7 @@ export const NOTIFICATION_ICONS: Record<NotificationType, string> = {
 }
 
 export const NOTIFICATION_LABELS: Record<NotificationType, string> = {
-  DUE_DATE_APPROACHING: '마감 임박 (2일 전)',
+  DUE_DATE_APPROACHING: '마감 임박 (D-2)',
   TASK_OVERDUE: '마감일 초과',
   ASSIGNEE_ADDED: '담당자 지정',
   TASK_COMMENT_ADDED: '새 댓글',

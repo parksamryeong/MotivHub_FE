@@ -140,6 +140,7 @@ export interface TaskActivityResponse {
 export interface MyTaskResponse {
   taskId: number
   name: string
+  startDate: string
   dueDate: string
   status: TaskStatus
   priority: TaskPriority
