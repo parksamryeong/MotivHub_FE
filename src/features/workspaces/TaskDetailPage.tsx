@@ -6,10 +6,12 @@ import {
   duplicateTask,
   fetchTask,
   taskActivitiesQueryKey,
+  unwatchTask,
   updateTask,
   updateTaskPeriod,
   updateTaskPriority,
   updateTaskStatus,
+  watchTask,
 } from '../../api/task'
 import { fetchWorkspaceDetail } from '../../api/workspace'
 import { getErrorCode, getErrorMessage } from '../../api/errors'
@@ -159,6 +161,15 @@ export function TaskDetailPage(): ReactElement {
 
   const priorityMutation = useMutation({
     mutationFn: (priority: TaskPriority) => updateTaskPriority(taskId, priority),
+    onSuccess: () => {
+      setActionError(null)
+      invalidateTask()
+    },
+    onError: (error) => setActionError(getErrorMessage(error)),
+  })
+
+  const watchMutation = useMutation({
+    mutationFn: () => (task?.isWatching ? unwatchTask(taskId) : watchTask(taskId)),
     onSuccess: () => {
       setActionError(null)
       invalidateTask()
@@ -325,6 +336,19 @@ export function TaskDetailPage(): ReactElement {
         </div>
 
         <div className="flex flex-shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={() => watchMutation.mutate()}
+            disabled={watchMutation.isPending}
+            aria-pressed={task.isWatching}
+            className={`flex-shrink-0 rounded-lg border px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${
+              task.isWatching
+                ? 'border-accent bg-accent-subtle text-accent-subtle-text'
+                : 'border-card-border text-text-secondary hover:bg-content-bg'
+            }`}
+          >
+            {task.isWatching ? '🔔 구독 중' : '🔕 구독하기'}
+          </button>
           <button
             type="button"
             onClick={() => duplicateMutation.mutate()}

@@ -71,6 +71,14 @@ export function updateTaskPriority(taskId: number, priority: TaskPriority): Prom
     .then((res) => res.data)
 }
 
+export function watchTask(taskId: number): Promise<void> {
+  return apiClient.post(`/api/tasks/${taskId}/watch`).then(() => undefined)
+}
+
+export function unwatchTask(taskId: number): Promise<void> {
+  return apiClient.delete(`/api/tasks/${taskId}/watch`).then(() => undefined)
+}
+
 export function duplicateTask(taskId: number): Promise<TaskResponse> {
   return apiClient.post<TaskResponse>(`/api/tasks/${taskId}/duplicate`).then((res) => res.data)
 }

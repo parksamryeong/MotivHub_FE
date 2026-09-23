@@ -115,6 +115,7 @@ export interface ChecklistItemResponse {
 
 export interface TaskDetailResponse extends TaskResponse {
   checklistItems: ChecklistItemResponse[]
+  isWatching: boolean
 }
 
 export type TaskActivityAction =
