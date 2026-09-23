@@ -7,18 +7,10 @@ import {
   markNotificationRead,
 } from '../../api/notification'
 import { getErrorMessage } from '../../api/errors'
-import type { NotificationResponse, NotificationType } from '../../api/types'
+import type { NotificationResponse } from '../../api/types'
+import { NOTIFICATION_ICONS } from './notificationTypes'
 
 const PAGE_SIZE = 20
-
-const NOTIFICATION_ICONS: Record<NotificationType, string> = {
-  DUE_DATE_APPROACHING: '⏰',
-  TASK_OVERDUE: '🔴',
-  ASSIGNEE_ADDED: '👤',
-  TASK_COMMENT_ADDED: '💬',
-  CHECKLIST_COMPLETED: '✅',
-  MENTIONED: '@',
-}
 
 export function NotificationPanel({ onClose }: { onClose: () => void }): ReactElement {
   const navigate = useNavigate()

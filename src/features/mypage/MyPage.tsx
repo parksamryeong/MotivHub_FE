@@ -5,6 +5,7 @@ import { fetchMyPage, deleteAccount } from '../../api/user'
 import { fetchWorkspaces } from '../../api/workspace'
 import { useAuthStore } from '../../stores/authStore'
 import { EditNicknameForm } from './EditNicknameForm'
+import { NotificationSettings } from '../notifications/NotificationSettings'
 
 export function MyPage(): ReactElement {
   const navigate = useNavigate()
@@ -116,6 +117,8 @@ export function MyPage(): ReactElement {
           <p className="text-text-primary">{new Date(data.createdAt).toLocaleDateString()}</p>
         </div>
       </div>
+
+      <NotificationSettings />
 
       <div className="flex flex-col gap-2 rounded-xl bg-card-bg p-6 shadow-card">
         <h2 className="text-sm font-semibold text-red-600">회원 탈퇴</h2>

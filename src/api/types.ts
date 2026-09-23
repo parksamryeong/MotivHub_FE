@@ -201,6 +201,11 @@ export type NotificationType =
 
 export type NotificationTargetType = 'TASK'
 
+export interface NotificationSettingResponse {
+  type: NotificationType
+  enabled: boolean
+}
+
 export interface NotificationResponse {
   id: number
   type: NotificationType

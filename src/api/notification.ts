@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { NotificationPageResponse } from './types'
+import type { NotificationPageResponse, NotificationSettingResponse, NotificationType } from './types'
 
 export function fetchNotifications(
   page: number,
@@ -22,4 +22,19 @@ export function markNotificationRead(id: number): Promise<void> {
 
 export function markAllNotificationsRead(): Promise<void> {
   return apiClient.patch('/api/notifications/read-all').then(() => undefined)
+}
+
+export function fetchNotificationSettings(): Promise<NotificationSettingResponse[]> {
+  return apiClient
+    .get<NotificationSettingResponse[]>('/api/notifications/settings')
+    .then((res) => res.data)
+}
+
+export function updateNotificationSetting(
+  type: NotificationType,
+  enabled: boolean
+): Promise<void> {
+  return apiClient
+    .patch(`/api/notifications/settings/${type}`, { enabled })
+    .then(() => undefined)
 }
