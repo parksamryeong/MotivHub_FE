@@ -44,7 +44,7 @@ export function OAuthCallbackPage(): ReactElement {
           return
         }
         const pendingToken = consumePendingInviteToken()
-        navigate(pendingToken ? `/invites/${pendingToken}` : '/workspaces', {
+        navigate(pendingToken ? `/invites/${pendingToken}` : '/dashboard', {
           replace: true,
         })
       })

@@ -244,6 +244,40 @@ export interface TaskBoardChangeMessage {
   task: TaskResponse | null
 }
 
+export type DashboardScope = 'ALL' | 'WORKSPACE'
+
+export interface DashboardStatusCount {
+  status: TaskStatus
+  count: number
+}
+
+export interface DashboardPriorityCount {
+  priority: TaskPriority
+  count: number
+}
+
+export interface DashboardMemberWorkload {
+  userId: number
+  nickname: string
+  profileImageUrl: string | null
+  count: number
+}
+
+export interface DashboardCompletionTrendPoint {
+  date: string
+  count: number
+}
+
+export interface DashboardStatsResponse {
+  scope: DashboardScope
+  workspaceId: number | null
+  statusCounts: DashboardStatusCount[]
+  priorityCounts: DashboardPriorityCount[]
+  memberWorkload: DashboardMemberWorkload[]
+  completionTrend: DashboardCompletionTrendPoint[]
+  dueSoonCount: number
+}
+
 export interface TaskNoteResponse {
   taskId: number
   content: string | null

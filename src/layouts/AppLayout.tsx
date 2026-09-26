@@ -6,6 +6,7 @@ import { stompClient } from '../realtime/stompClient'
 import { useAuthStore } from '../stores/authStore'
 
 const NAV_ITEMS = [
+  { to: '/dashboard', label: '대시보드' },
   { to: '/workspaces', label: '워크스페이스' },
   { to: '/issues', label: '이슈 게시판' },
   { to: '/my-tasks', label: '내 할 일' },

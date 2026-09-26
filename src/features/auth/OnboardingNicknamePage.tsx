@@ -66,7 +66,7 @@ export function OnboardingNicknamePage(): ReactElement {
       const user = await updateNickname(nickname)
       setUser(user)
       const pendingToken = consumePendingInviteToken()
-      navigate(pendingToken ? `/invites/${pendingToken}` : '/workspaces', {
+      navigate(pendingToken ? `/invites/${pendingToken}` : '/dashboard', {
         replace: true,
       })
     } catch {
