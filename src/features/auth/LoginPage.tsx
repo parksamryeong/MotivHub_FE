@@ -1,31 +1,31 @@
-import type { ReactElement } from 'react'
-import { oauthAuthorizeUrl } from '../../api/auth'
+import { useState, type FormEvent, type ReactElement } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { loginWithEmail, oauthAuthorizeUrl } from '../../api/auth'
+import { fetchMe } from '../../api/user'
+import { getErrorMessage } from '../../api/errors'
+import { useAuthStore } from '../../stores/authStore'
+import { consumePendingInviteToken } from '../workspaces/pendingInvite'
+import { GithubIcon, GoogleIcon, KakaoIcon } from './socialIcons'
 import type { OAuthProvider } from '../../api/types'
 
-const PROVIDERS: {
-  id: OAuthProvider
-  label: string
-  className: string
-}[] = [
+const SOCIAL_PROVIDERS: { id: OAuthProvider; label: string; icon: ReactElement; className: string }[] = [
   {
     id: 'google',
     label: 'Google로 계속하기',
-    className: 'border border-card-border bg-white text-gray-700 hover:bg-gray-50',
+    icon: <GoogleIcon />,
+    className: 'border border-card-border bg-white hover:bg-gray-50',
   },
   {
     id: 'github',
     label: 'GitHub로 계속하기',
+    icon: <GithubIcon />,
     className: 'bg-[#181717] text-white hover:bg-[#181717]/90',
   },
   {
     id: 'kakao',
     label: '카카오로 계속하기',
-    className: 'bg-[#FEE500] text-[#191919] hover:bg-[#FEE500]/90',
-  },
-  {
-    id: 'naver',
-    label: '네이버로 계속하기',
-    className: 'bg-[#03C75A] text-white hover:bg-[#03C75A]/90',
+    icon: <KakaoIcon />,
+    className: 'bg-[#FEE500] hover:bg-[#FEE500]/90',
   },
 ]
 
@@ -36,8 +36,40 @@ const FEATURES = [
 ]
 
 export function LoginPage(): ReactElement {
-  function handleLogin(provider: OAuthProvider) {
+  const navigate = useNavigate()
+  const setTokens = useAuthStore((state) => state.setTokens)
+  const setUser = useAuthStore((state) => state.setUser)
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  function handleSocialLogin(provider: OAuthProvider) {
     window.location.href = oauthAuthorizeUrl(provider)
+  }
+
+  async function handleEmailLogin(e: FormEvent) {
+    e.preventDefault()
+    if (!email.trim() || !password || isSubmitting) return
+    setIsSubmitting(true)
+    setError(null)
+    try {
+      const tokens = await loginWithEmail(email.trim(), password)
+      setTokens(tokens)
+      const user = await fetchMe()
+      setUser(user)
+      if (!user.nicknameConfigured) {
+        navigate('/onboarding/nickname', { replace: true })
+        return
+      }
+      const pendingToken = consumePendingInviteToken()
+      navigate(pendingToken ? `/invites/${pendingToken}` : '/dashboard', { replace: true })
+    } catch (err) {
+      setError(getErrorMessage(err))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -78,28 +110,69 @@ export function LoginPage(): ReactElement {
       </div>
 
       <div className="flex flex-1 items-center justify-center bg-content-bg px-6 py-12 md:justify-end md:pr-16">
-        <div className="flex w-80 flex-col gap-3 rounded-xl border border-card-border bg-card-bg p-8 shadow-card">
-          <div className="mb-2 flex flex-col gap-1 md:hidden">
+        <div className="flex w-80 flex-col gap-4 rounded-xl border border-card-border bg-card-bg p-8 shadow-card">
+          <div className="mb-1 flex flex-col gap-1 md:hidden">
             <span className="text-xl font-bold text-text-primary">MotivHub</span>
             <p className="text-sm text-text-secondary">팀의 작업과 지식을 한 곳에서 함께</p>
           </div>
 
-          <h2 className="mb-2 text-xl font-bold text-text-primary">로그인</h2>
+          <h2 className="text-xl font-bold text-text-primary">로그인</h2>
 
-          {PROVIDERS.map((provider) => (
+          <form onSubmit={handleEmailLogin} className="flex flex-col gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="이메일"
+              autoComplete="email"
+              className="rounded-lg border border-card-border bg-card-bg px-3 py-2 text-sm text-text-primary"
+            />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="비밀번호"
+              autoComplete="current-password"
+              maxLength={72}
+              className="rounded-lg border border-card-border bg-card-bg px-3 py-2 text-sm text-text-primary"
+            />
+            {error && <p className="text-sm text-red-600">{error}</p>}
             <button
-              key={provider.id}
-              type="button"
-              onClick={() => handleLogin(provider.id)}
-              className={`w-full rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${provider.className}`}
+              type="submit"
+              disabled={!email.trim() || !password || isSubmitting}
+              className="mt-1 rounded-lg bg-action px-4 py-2 text-sm font-medium text-action-text disabled:opacity-50"
             >
-              {provider.label}
+              {isSubmitting ? '로그인 중...' : '로그인'}
             </button>
-          ))}
+          </form>
 
-          <p className="mt-2 text-center text-xs text-text-secondary">
-            계정이 없으신가요? 위 버튼으로 로그인하면 자동으로 가입됩니다.
+          <p className="text-center text-xs text-text-secondary">
+            계정이 없으신가요?{' '}
+            <Link to="/signup" className="font-medium text-accent-subtle-text">
+              회원가입
+            </Link>
           </p>
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-card-border" />
+            <span className="text-xs text-text-secondary">간편로그인</span>
+            <div className="h-px flex-1 bg-card-border" />
+          </div>
+
+          <div className="flex justify-center gap-3">
+            {SOCIAL_PROVIDERS.map((provider) => (
+              <button
+                key={provider.id}
+                type="button"
+                onClick={() => handleSocialLogin(provider.id)}
+                aria-label={provider.label}
+                title={provider.label}
+                className={`flex h-11 w-11 items-center justify-center rounded-full transition-colors ${provider.className}`}
+              >
+                {provider.icon}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
