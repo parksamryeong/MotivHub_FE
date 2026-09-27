@@ -35,15 +35,22 @@ export function CompletionTrendChart({
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-card-border)" />
-          <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-          <YAxis allowDecimals={false} tick={{ fontSize: 12 }} width={32} />
-          <Tooltip formatter={(value) => `${value}개`} />
+          <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }} />
+          <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }} width={32} />
+          <Tooltip
+            formatter={(value) => `${value}개`}
+            contentStyle={{ borderRadius: 10, border: '1px solid var(--color-card-border)' }}
+          />
           <Area
             type="monotone"
             dataKey="count"
             stroke={SINGLE_SERIES_COLOR}
-            strokeWidth={2}
+            strokeWidth={2.5}
             fill="url(#completionTrendFill)"
+            dot={{ r: 3, strokeWidth: 0, fill: SINGLE_SERIES_COLOR }}
+            activeDot={{ r: 5 }}
+            animationDuration={600}
+            animationEasing="ease-out"
           />
         </AreaChart>
       </ResponsiveContainer>

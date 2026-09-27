@@ -24,17 +24,24 @@ export function StatusDonutChart({ data }: { data: DashboardStatusCount[] }): Re
             data={chartData}
             dataKey="count"
             nameKey="label"
-            innerRadius={55}
-            outerRadius={85}
-            paddingAngle={2}
+            innerRadius={58}
+            outerRadius={88}
+            paddingAngle={4}
+            cornerRadius={8}
+            stroke="none"
+            animationDuration={500}
+            animationEasing="ease-out"
             label={({ name, value }) => (Number(value) > 0 ? `${name} ${value}` : '')}
           >
             {chartData.map((entry) => (
               <Cell key={entry.status} fill={STATUS_CHART_COLORS[entry.status]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => `${value}개`} />
-          <Legend />
+          <Tooltip
+            formatter={(value) => `${value}개`}
+            contentStyle={{ borderRadius: 10, border: '1px solid var(--color-card-border)' }}
+          />
+          <Legend iconType="circle" iconSize={8} />
         </PieChart>
       </ResponsiveContainer>
     </div>

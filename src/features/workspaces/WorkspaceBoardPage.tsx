@@ -201,8 +201,35 @@ export function WorkspaceBoardPage(): ReactElement {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-text-primary">{workspace.name}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-card-bg px-4 py-3 shadow-card">
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="rounded-lg border border-card-border px-3 py-1.5 text-base font-bold text-text-primary">
+            {workspace.name}
+          </span>
+          <p className="text-sm text-text-secondary">
+            할 일 <b className="font-semibold text-text-primary">{tasksFor('WAITING').length}</b>
+            <span className="mx-2 text-text-muted">·</span>
+            진행 중{' '}
+            <b className="font-semibold text-text-primary">{tasksFor('IN_PROGRESS').length}</b>
+            <span className="mx-2 text-text-muted">·</span>
+            완료 <b className="font-semibold text-text-primary">{tasksFor('DONE').length}</b>
+          </p>
+          <div className="flex w-36 items-center gap-2">
+            <div className="h-2 min-w-0 flex-1 rounded-full bg-content-bg">
+              <div
+                className="h-2 rounded-full transition-[width,background-color]"
+                style={{
+                  width: `${completionPercent}%`,
+                  backgroundColor: `hsl(${completionPercent * 1.2}, 75%, 45%)`,
+                }}
+              />
+            </div>
+            <span className="flex-shrink-0 text-sm font-semibold text-text-primary">
+              {completionPercent}%
+            </span>
+          </div>
+        </div>
+
         <div className="flex items-center gap-4">
           <div className="flex gap-1 rounded-lg border border-card-border bg-card-bg p-0.5">
             <button
@@ -234,30 +261,6 @@ export function WorkspaceBoardPage(): ReactElement {
           >
             ⚙ 설정
           </Link>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl bg-card-bg px-4 py-3 shadow-card">
-        <p className="text-sm text-text-secondary">
-          할 일 <b className="font-semibold text-text-primary">{tasksFor('WAITING').length}</b>
-          <span className="mx-2 text-text-muted">·</span>
-          진행 중 <b className="font-semibold text-text-primary">{tasksFor('IN_PROGRESS').length}</b>
-          <span className="mx-2 text-text-muted">·</span>
-          완료 <b className="font-semibold text-text-primary">{tasksFor('DONE').length}</b>
-        </p>
-        <div className="flex min-w-48 flex-1 items-center gap-2">
-          <div className="h-2 min-w-0 flex-1 rounded-full bg-content-bg">
-            <div
-              className="h-2 rounded-full transition-[width,background-color]"
-              style={{
-                width: `${completionPercent}%`,
-                backgroundColor: `hsl(${completionPercent * 1.2}, 75%, 45%)`,
-              }}
-            />
-          </div>
-          <span className="flex-shrink-0 text-sm font-semibold text-text-primary">
-            {completionPercent}%
-          </span>
         </div>
       </div>
 

@@ -16,6 +16,7 @@ import {
 import { fetchWorkspaceDetail } from '../../api/workspace'
 import { getErrorCode, getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
+import { PencilIcon } from '../../components/icons'
 import { useTopic } from '../../realtime/useTopic'
 import { useYjsField } from '../../realtime/useYjsField'
 import type {
@@ -431,9 +432,11 @@ export function TaskDetailPage(): ReactElement {
                       setDueDateDraft(task.dueDate)
                       setIsEditingPeriod(true)
                     }}
-                    className="text-sm text-accent-subtle-text"
+                    aria-label="기간 수정"
+                    title="기간 수정"
+                    className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-content-bg hover:text-text-primary"
                   >
-                    수정
+                    <PencilIcon className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>

@@ -34,7 +34,7 @@ export function AppLayout(): ReactElement {
   }
 
   const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
-    `rounded-lg px-3 py-1.5 text-sm font-medium ${
+    `rounded-lg px-4 py-2 text-base font-medium ${
       isActive ? 'bg-sidebar-active text-accent' : 'text-sidebar-muted hover:text-white'
     }`
 
@@ -46,19 +46,20 @@ export function AppLayout(): ReactElement {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="flex-shrink-0 border-b border-white/10 bg-sidebar">
-        <div className="flex h-14 items-center justify-between px-4 md:px-6">
-          <div className="flex items-center gap-6">
-            <span className="text-lg font-bold text-white">MotivHub</span>
-            <nav className="hidden items-center gap-1 md:flex">
-              {NAV_ITEMS.map((item) => (
-                <NavLink key={item.to} to={item.to} className={navLinkClassName}>
-                  {item.label}
-                </NavLink>
-              ))}
-            </nav>
+        <div className="flex h-16 items-center justify-between px-4 md:px-6">
+          <div className="flex flex-shrink-0 items-center">
+            <span className="text-2xl font-bold text-white">MotivHub</span>
           </div>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <nav className="hidden flex-1 items-center justify-center gap-3 md:flex">
+            {NAV_ITEMS.map((item) => (
+              <NavLink key={item.to} to={item.to} className={navLinkClassName}>
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="hidden flex-shrink-0 items-center gap-3 md:flex">
             <NotificationBell />
             <NavLink to="/mypage" aria-label="마이페이지" title="마이페이지">
               {user?.profileImageUrl ? (

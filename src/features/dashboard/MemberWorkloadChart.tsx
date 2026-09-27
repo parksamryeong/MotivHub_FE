@@ -13,15 +13,28 @@ export function MemberWorkloadChart({ data }: { data: DashboardMemberWorkload[] 
         </p>
       ) : (
         <ResponsiveContainer width="100%" height={Math.max(120, data.length * 36)}>
-          <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24 }}>
-            <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
-            <YAxis type="category" dataKey="nickname" width={64} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(value) => `${value}개`} />
+          <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24 }} barSize={20}>
+            <XAxis type="number" allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }} />
+            <YAxis
+              type="category"
+              dataKey="nickname"
+              width={64}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }}
+            />
+            <Tooltip
+              formatter={(value) => `${value}개`}
+              cursor={{ fill: 'var(--color-content-bg)' }}
+              contentStyle={{ borderRadius: 10, border: '1px solid var(--color-card-border)' }}
+            />
             <Bar
               dataKey="count"
               fill={SINGLE_SERIES_COLOR}
-              radius={[0, 4, 4, 0]}
-              label={{ position: 'right', fontSize: 12 }}
+              radius={[0, 10, 10, 0]}
+              label={{ position: 'right', fontSize: 12, fill: 'var(--color-text-secondary)' }}
+              animationDuration={500}
+              animationEasing="ease-out"
             />
           </BarChart>
         </ResponsiveContainer>

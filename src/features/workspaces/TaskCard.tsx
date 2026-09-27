@@ -59,21 +59,21 @@ export function TaskCard({
       ref={setNodeRef}
       style={dragStyle}
       {...(canChangeStatus ? { ...listeners, ...attributes } : {})}
-      className={`flex flex-col gap-2 rounded-xl bg-card-bg p-3 shadow-card ${
+      className={`flex flex-col gap-1.5 rounded-xl bg-card-bg p-2 shadow-card ${
         canChangeStatus ? 'cursor-grab active:cursor-grabbing' : ''
       } ${isDragging ? 'opacity-50' : ''}`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <button
           type="button"
           onClick={onClick}
-          className="flex-1 text-left text-sm font-medium text-text-primary"
+          className="flex-1 truncate text-left text-sm font-medium text-text-primary"
         >
           {task.name}
         </button>
         <PriorityBadge priority={task.priority} />
         {task.status === 'EXPIRED' && (
-          <span className="rounded-md bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+          <span className="rounded-md bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-600">
             만료
           </span>
         )}
@@ -83,41 +83,43 @@ export function TaskCard({
           disabled={duplicateMutation.isPending}
           aria-label="태스크 복제"
           title="태스크 복제"
-          className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-content-bg hover:text-text-primary disabled:opacity-50"
+          className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-content-bg hover:text-text-primary disabled:opacity-50"
         >
-          <CopyIcon className="h-3.5 w-3.5" />
+          <CopyIcon className="h-3 w-3" />
         </button>
       </div>
-      <div className="flex items-center gap-1">
-        {task.assignees.map((assignee) =>
-          assignee.profileImageUrl ? (
-            <img
-              key={assignee.id}
-              src={assignee.profileImageUrl}
-              alt={assignee.nickname}
-              title={assignee.nickname}
-              className="h-6 w-6 rounded-full"
-            />
-          ) : (
-            <div
-              key={assignee.id}
-              title={assignee.nickname}
-              className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-white"
-            >
-              {assignee.nickname.slice(0, 1)}
-            </div>
-          )
-        )}
+      <div className="flex items-center justify-between gap-1.5">
+        <div className="flex items-center gap-1">
+          {task.assignees.map((assignee) =>
+            assignee.profileImageUrl ? (
+              <img
+                key={assignee.id}
+                src={assignee.profileImageUrl}
+                alt={assignee.nickname}
+                title={assignee.nickname}
+                className="h-5 w-5 rounded-full"
+              />
+            ) : (
+              <div
+                key={assignee.id}
+                title={assignee.nickname}
+                className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[9px] font-semibold text-white"
+              >
+                {assignee.nickname.slice(0, 1)}
+              </div>
+            )
+          )}
+        </div>
+        <span className="flex-shrink-0 text-xs text-text-secondary">
+          마감 {new Date(task.dueDate).toLocaleDateString()}
+        </span>
       </div>
-      <span className="text-xs text-text-secondary">
-        마감 {new Date(task.dueDate).toLocaleDateString()}
-      </span>
       {canChangeStatus && (
         <select
           value={task.status as Exclude<TaskStatus, 'EXPIRED'>}
           onChange={(e) => statusMutation.mutate(e.target.value as Exclude<TaskStatus, 'EXPIRED'>)}
           disabled={statusMutation.isPending}
-          className="rounded-lg border border-card-border bg-card-bg px-2 py-1 text-xs text-text-primary"
+          className="rounded-lg border border-card-border bg-card-bg px-2 py-0.5 text-xs text-text-primary"
         >
           {STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
