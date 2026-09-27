@@ -88,6 +88,9 @@ export function TaskCard({
           <CopyIcon className="h-3 w-3" />
         </button>
       </div>
+      {task.description && (
+        <p className="truncate text-xs text-text-secondary">{task.description}</p>
+      )}
       <div className="flex items-center justify-between gap-1.5">
         <div className="flex items-center gap-1">
           {task.assignees.map((assignee) =>

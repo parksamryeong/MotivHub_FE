@@ -201,12 +201,11 @@ export function WorkspaceBoardPage(): ReactElement {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-card-bg px-4 py-3 shadow-card">
-        <div className="flex flex-wrap items-center gap-4">
-          <span className="rounded-lg border border-card-border px-3 py-1.5 text-base font-bold text-text-primary">
-            {workspace.name}
-          </span>
-          <p className="text-sm text-text-secondary">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-card-bg px-5 py-4 shadow-card">
+        <div className="flex flex-wrap items-center gap-5">
+          <h1 className="flex-shrink-0 text-lg font-bold text-text-primary">{workspace.name}</h1>
+          <div className="hidden h-6 w-px flex-shrink-0 bg-card-border sm:block" />
+          <p className="flex-shrink-0 text-sm text-text-secondary">
             할 일 <b className="font-semibold text-text-primary">{tasksFor('WAITING').length}</b>
             <span className="mx-2 text-text-muted">·</span>
             진행 중{' '}
@@ -214,7 +213,7 @@ export function WorkspaceBoardPage(): ReactElement {
             <span className="mx-2 text-text-muted">·</span>
             완료 <b className="font-semibold text-text-primary">{tasksFor('DONE').length}</b>
           </p>
-          <div className="flex w-36 items-center gap-2">
+          <div className="flex w-36 flex-shrink-0 items-center gap-2">
             <div className="h-2 min-w-0 flex-1 rounded-full bg-content-bg">
               <div
                 className="h-2 rounded-full transition-[width,background-color]"
@@ -230,7 +229,7 @@ export function WorkspaceBoardPage(): ReactElement {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-shrink-0 items-center gap-4">
           <div className="flex gap-1 rounded-lg border border-card-border bg-card-bg p-0.5">
             <button
               type="button"
