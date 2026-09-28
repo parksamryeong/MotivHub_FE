@@ -6,7 +6,7 @@ import { getErrorCode, getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import { consumePendingInviteToken } from '../workspaces/pendingInvite'
 import { getNicknameFormatError } from '../mypage/nicknameFormat'
-import { getSignupPasswordError } from './signupPassword'
+import { getEmailFormatError, getSignupPasswordError } from './signupPassword'
 
 const RESEND_COOLDOWN_SECONDS = 30
 
@@ -37,9 +37,14 @@ export function SignupPage(): ReactElement {
 
   async function handleSendCode() {
     if (!email.trim() || isSendingCode || cooldown > 0) return
+    setEmailErrorCode(undefined)
+    const formatError = getEmailFormatError(email.trim())
+    if (formatError) {
+      setEmailError(formatError)
+      return
+    }
     setIsSendingCode(true)
     setEmailError(null)
-    setEmailErrorCode(undefined)
     try {
       await requestSignupVerification(email.trim())
       setIsVerificationSent(true)
@@ -52,6 +57,8 @@ export function SignupPage(): ReactElement {
     }
   }
 
+  const emailFormatError =
+    email && !isVerificationSent ? getEmailFormatError(email.trim()) : null
   const nicknameError = nickname ? getNicknameFormatError(nickname) : null
   const passwordError = password ? getSignupPasswordError(password) : null
   const canSubmit =
@@ -112,7 +119,7 @@ export function SignupPage(): ReactElement {
                 <button
                   type="button"
                   onClick={handleSendCode}
-                  disabled={!email.trim() || isSendingCode || cooldown > 0}
+                  disabled={!email.trim() || !!emailFormatError || isSendingCode || cooldown > 0}
                   className="flex-shrink-0 whitespace-nowrap rounded-lg border border-action px-3 py-2 text-xs font-medium text-action disabled:opacity-50"
                 >
                   {cooldown > 0
@@ -124,6 +131,9 @@ export function SignupPage(): ReactElement {
                         : '인증코드 받기'}
                 </button>
               </div>
+              {emailFormatError && !emailError && (
+                <span className="text-xs text-red-600">{emailFormatError}</span>
+              )}
               {emailError && (
                 <span className="text-xs text-red-600">
                   {emailError}

@@ -1,3 +1,10 @@
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export function getEmailFormatError(email: string): string | null {
+  if (!EMAIL_PATTERN.test(email)) return '올바른 이메일 형식이 아닙니다'
+  return null
+}
+
 export function getSignupPasswordError(password: string): string | null {
   if (password.length < 8 || password.length > 72) return '비밀번호는 8~72자여야 합니다'
   if (/[^\x21-\x7E]/.test(password)) return '한글, 공백은 사용할 수 없습니다'
