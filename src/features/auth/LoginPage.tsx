@@ -109,23 +109,23 @@ export function LoginPage(): ReactElement {
         </div>
       </div>
 
-      <div className="flex flex-1 items-center justify-center bg-content-bg px-6 py-12 md:justify-end md:pr-16">
-        <div className="flex w-80 flex-col gap-4 rounded-xl border border-card-border bg-card-bg p-8 shadow-card">
+      <div className="flex flex-1 items-center justify-center bg-content-bg px-6 py-12 md:justify-end md:pr-8">
+        <div className="flex w-[420px] flex-col gap-5 rounded-xl border border-card-border bg-card-bg p-10 shadow-card">
           <div className="mb-1 flex flex-col gap-1 md:hidden">
             <span className="text-xl font-bold text-text-primary">MotivHub</span>
             <p className="text-sm text-text-secondary">팀의 작업과 지식을 한 곳에서 함께</p>
           </div>
 
-          <h2 className="text-xl font-bold text-text-primary">로그인</h2>
+          <h2 className="text-2xl font-bold text-text-primary">로그인</h2>
 
-          <form onSubmit={handleEmailLogin} className="flex flex-col gap-2">
+          <form onSubmit={handleEmailLogin} className="flex flex-col gap-3">
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="이메일"
               autoComplete="email"
-              className="rounded-lg border border-card-border bg-card-bg px-3 py-2 text-sm text-text-primary"
+              className="rounded-lg border border-card-border bg-card-bg px-4 py-3 text-base text-text-primary"
             />
             <input
               type="password"
@@ -134,19 +134,19 @@ export function LoginPage(): ReactElement {
               placeholder="비밀번호"
               autoComplete="current-password"
               maxLength={72}
-              className="rounded-lg border border-card-border bg-card-bg px-3 py-2 text-sm text-text-primary"
+              className="rounded-lg border border-card-border bg-card-bg px-4 py-3 text-base text-text-primary"
             />
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
               disabled={!email.trim() || !password || isSubmitting}
-              className="mt-1 rounded-lg bg-action px-4 py-2 text-sm font-medium text-action-text disabled:opacity-50"
+              className="mt-1 rounded-lg bg-action px-4 py-3 text-base font-medium text-action-text disabled:opacity-50"
             >
               {isSubmitting ? '로그인 중...' : '로그인'}
             </button>
           </form>
 
-          <p className="text-center text-xs text-text-secondary">
+          <p className="text-center text-sm text-text-secondary">
             계정이 없으신가요?{' '}
             <Link to="/signup" className="font-medium text-accent-subtle-text">
               회원가입
@@ -159,7 +159,7 @@ export function LoginPage(): ReactElement {
             <div className="h-px flex-1 bg-card-border" />
           </div>
 
-          <div className="flex justify-center gap-3">
+          <div className="flex justify-center gap-4">
             {SOCIAL_PROVIDERS.map((provider) => (
               <button
                 key={provider.id}
@@ -167,7 +167,7 @@ export function LoginPage(): ReactElement {
                 onClick={() => handleSocialLogin(provider.id)}
                 aria-label={provider.label}
                 title={provider.label}
-                className={`flex h-11 w-11 items-center justify-center rounded-full transition-colors ${provider.className}`}
+                className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${provider.className}`}
               >
                 {provider.icon}
               </button>
