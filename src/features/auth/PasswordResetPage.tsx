@@ -124,7 +124,8 @@ export function PasswordResetPage(): ReactElement {
               {requestError && <span className="text-xs text-red-600">{requestError}</span>}
               {isCodeRequested && !requestError && (
                 <span className="text-xs text-accent-subtle-text">
-                  입력하신 이메일로 안내 메일을 보냈습니다.
+                  가입된 이메일이라면 안내 메일을 보냈습니다. 소셜 로그인으로 가입하셨다면 메일의
+                  안내에 따라 해당 서비스로 로그인해주세요.
                 </span>
               )}
             </div>
