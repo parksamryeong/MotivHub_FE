@@ -18,6 +18,7 @@ import { getErrorCode, getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import { PencilIcon } from '../../components/icons'
 import { useTopic } from '../../realtime/useTopic'
+import { CollabTextEditor } from '../../realtime/CollabTextEditor'
 import { useYjsField } from '../../realtime/useYjsField'
 import type {
   TaskChangedMessage,
@@ -92,10 +93,15 @@ export function TaskDetailPage(): ReactElement {
     setViewers(message.viewers.filter((viewer) => viewer.id !== currentUserId))
   })
 
-  const { text: descriptionText, handleChange: handleDescriptionChange } = useYjsField({
+  const canEditDescription = canEditContent && !isKicked
+  const {
+    text: descriptionText,
+    ytext: descriptionYtext,
+    awareness: descriptionAwareness,
+  } = useYjsField({
     taskId,
     field: 'description',
-    canEdit: canEditContent && !isKicked,
+    canEdit: canEditDescription,
     initialContent: task ? (task.description ?? '') : undefined,
   })
 
@@ -305,14 +311,15 @@ export function TaskDetailPage(): ReactElement {
           ) : (
             <>
               <h1 className="text-2xl font-bold text-text-primary">{task.name}</h1>
-              {canEditContent ? (
-                <textarea
-                  value={descriptionText}
-                  onChange={(e) => handleDescriptionChange(e.target.value)}
-                  maxLength={2000}
-                  placeholder="설명을 입력하세요"
-                  className="mt-2 w-full rounded-lg border border-card-border bg-card-bg px-3 py-2 text-sm text-text-primary"
-                />
+              {canEditDescription ? (
+                <div className="mt-2">
+                  <CollabTextEditor
+                    ytext={descriptionYtext}
+                    awareness={descriptionAwareness}
+                    placeholderText="설명을 입력하세요"
+                    maxLength={2000}
+                  />
+                </div>
               ) : (
                 descriptionText && (
                   <p className="mt-2 whitespace-pre-wrap text-sm text-text-secondary">

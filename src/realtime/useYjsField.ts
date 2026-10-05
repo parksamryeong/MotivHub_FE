@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import * as Y from 'yjs'
+import {
+  Awareness,
+  applyAwarenessUpdate,
+  encodeAwarenessUpdate,
+  removeAwarenessStates,
+} from 'y-protocols/awareness'
 import { fetchTaskYjsState } from '../api/taskYjsState'
 import { onStompConnect, publishMessage } from './stompClient'
 import { useTopic } from './useTopic'
@@ -28,11 +34,12 @@ export function useYjsField({
   field: 'description' | 'note'
   canEdit: boolean
   initialContent: string | undefined
-}): { text: string; handleChange: (newValue: string) => void } {
+}): { text: string; ytext: Y.Text; awareness: Awareness } {
   // taskId/field가 바뀌면(같은 컴포넌트 인스턴스가 리마운트 없이 다른 태스크를 보게 되는
   // 라우팅 케이스) 새 Y.Doc을 만든다 — 이전 태스크의 문서를 새 태스크에 이어 쓰지 않기 위함.
   const ydoc = useMemo(() => new Y.Doc(), [taskId, field])
   const ytext = ydoc.getText('content')
+  const awareness = useMemo(() => new Awareness(ydoc), [ydoc])
   const initializedRef = useRef(false)
   const [seeded, setSeeded] = useState(false)
   const [text, setText] = useState('')
@@ -167,36 +174,39 @@ export function useYjsField({
     })
   }, [canEdit, ydoc, taskId, field])
 
-  function handleChange(newValue: string): void {
+  useTopic<{ update: string }>(
+    canEdit ? `/topic/tasks/${taskId}/${field}/awareness` : null,
+    (message) => {
+      applyAwarenessUpdate(awareness, fromBase64(message.update), 'remote')
+    }
+  )
+
+  // 로컬 커서 상태 변경을 보낸다. 서버는 /awareness 구독이 승인된 세션만 SEND를 허용하므로
+  // 편집 권한이 있을 때만 송신한다.
+  useEffect(() => {
     if (!canEdit) return
-    const oldValue = ytext.toString()
-    if (oldValue === newValue) return
-
-    let start = 0
-    while (
-      start < oldValue.length &&
-      start < newValue.length &&
-      oldValue[start] === newValue[start]
+    function onAwarenessChange(
+      { added, updated, removed }: { added: number[]; updated: number[]; removed: number[] },
+      origin: unknown
     ) {
-      start++
+      if (origin === 'remote') return
+      const changed = [...added, ...updated, ...removed]
+      publishMessage(`/app/tasks/${taskId}/${field}/awareness`, {
+        update: toBase64(encodeAwarenessUpdate(awareness, changed)),
+      })
     }
-    let oldEnd = oldValue.length
-    let newEnd = newValue.length
-    while (oldEnd > start && newEnd > start && oldValue[oldEnd - 1] === newValue[newEnd - 1]) {
-      oldEnd--
-      newEnd--
+    awareness.on('update', onAwarenessChange)
+    return () => {
+      removeAwarenessStates(awareness, [awareness.clientID], 'local')
+      awareness.off('update', onAwarenessChange)
     }
+  }, [canEdit, awareness, taskId, field])
 
-    ydoc.transact(() => {
-      if (oldEnd > start) ytext.delete(start, oldEnd - start)
-      if (newEnd > start) ytext.insert(start, newValue.slice(start, newEnd))
-    })
-  }
+  useEffect(() => {
+    return () => awareness.destroy()
+  }, [awareness])
 
-  return {
-    text: canEdit ? text : (initialContent ?? ''),
-    handleChange,
-  }
+  return { text: canEdit ? text : (initialContent ?? ''), ytext, awareness }
 }
 
 function publishSnapshot(
