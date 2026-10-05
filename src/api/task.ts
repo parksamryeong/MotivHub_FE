@@ -40,6 +40,12 @@ export function fetchMyTasks(status?: TaskStatus): Promise<MyTaskResponse[]> {
     .then((res) => res.data)
 }
 
+export function searchMyTasks(q: string): Promise<MyTaskResponse[]> {
+  return apiClient
+    .get<MyTaskResponse[]>('/api/tasks/mine', { params: { q } })
+    .then((res) => res.data)
+}
+
 export function updateTask(
   taskId: number,
   body: { name: string; description?: string }

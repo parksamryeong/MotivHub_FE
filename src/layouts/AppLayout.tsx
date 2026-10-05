@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactElement } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { logout } from '../api/auth'
+import { GlobalSearchModal } from '../features/search/GlobalSearchModal'
 import { NotificationBell } from '../features/notifications/NotificationBell'
 import { stompClient } from '../realtime/stompClient'
 import { useAuthStore } from '../stores/authStore'
@@ -23,6 +24,18 @@ export function AppLayout(): ReactElement {
   const clear = useAuthStore((state) => state.clear)
   const user = useAuthStore((state) => state.user)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+
+  useEffect(() => {
+    function handleShortcut(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setIsSearchOpen((prev) => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleShortcut)
+    return () => window.removeEventListener('keydown', handleShortcut)
+  }, [])
 
   async function handleLogout() {
     try {
@@ -60,6 +73,15 @@ export function AppLayout(): ReactElement {
           </nav>
 
           <div className="hidden flex-shrink-0 items-center gap-3 md:flex">
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="검색 (Ctrl+K)"
+              title="검색 (Ctrl+K)"
+              className="rounded-lg px-2 py-1.5 text-sm text-sidebar-muted hover:text-white"
+            >
+              🔍
+            </button>
             <NotificationBell />
             <NavLink to="/mypage" aria-label="마이페이지" title="마이페이지">
               {user?.profileImageUrl ? (
@@ -84,6 +106,14 @@ export function AppLayout(): ReactElement {
           </div>
 
           <div className="flex items-center gap-1 md:hidden">
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="검색"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-white"
+            >
+              🔍
+            </button>
             <NotificationBell />
             <button
               type="button"
@@ -132,6 +162,7 @@ export function AppLayout(): ReactElement {
       <main className="flex-1 bg-content-bg p-4 md:p-8">
         <Outlet />
       </main>
+      {isSearchOpen && <GlobalSearchModal onClose={() => setIsSearchOpen(false)} />}
     </div>
   )
 }
