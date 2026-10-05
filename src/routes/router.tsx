@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '../features/auth/LoginPage'
 import { SignupPage } from '../features/auth/SignupPage'
+import { PasswordResetPage } from '../features/auth/PasswordResetPage'
 import { OAuthCallbackPage } from '../features/auth/OAuthCallbackPage'
 import { OnboardingNicknamePage } from '../features/auth/OnboardingNicknamePage'
 import { MyPage } from '../features/mypage/MyPage'
@@ -21,6 +22,7 @@ import { ProtectedRoute } from './ProtectedRoute'
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   { path: '/signup', element: <SignupPage /> },
+  { path: '/password-reset', element: <PasswordResetPage /> },
   { path: '/oauth/callback', element: <OAuthCallbackPage /> },
   {
     path: '/onboarding/nickname',

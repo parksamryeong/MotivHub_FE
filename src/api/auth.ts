@@ -47,3 +47,19 @@ export function loginWithEmail(email: string, password: string): Promise<AuthTok
     .post<AuthTokens>(`${API_BASE_URL}/api/auth/login`, { email, password })
     .then((res) => res.data)
 }
+
+export function requestPasswordReset(email: string): Promise<void> {
+  return axios
+    .post(`${API_BASE_URL}/api/auth/password-reset/request`, { email })
+    .then(() => undefined)
+}
+
+export function completePasswordReset(
+  email: string,
+  code: string,
+  newPassword: string
+): Promise<void> {
+  return axios
+    .post(`${API_BASE_URL}/api/auth/password-reset/complete`, { email, code, newPassword })
+    .then(() => undefined)
+}

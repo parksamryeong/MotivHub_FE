@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactElement } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { loginWithEmail, oauthAuthorizeUrl } from '../../api/auth'
 import { fetchMe } from '../../api/user'
 import { getErrorMessage } from '../../api/errors'
@@ -37,8 +37,10 @@ const FEATURES = [
 
 export function LoginPage(): ReactElement {
   const navigate = useNavigate()
+  const location = useLocation()
   const setTokens = useAuthStore((state) => state.setTokens)
   const setUser = useAuthStore((state) => state.setUser)
+  const notice = (location.state as { notice?: string } | null)?.notice
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -136,6 +138,12 @@ export function LoginPage(): ReactElement {
               maxLength={72}
               className="rounded-lg border border-card-border bg-card-bg px-4 py-3 text-base text-text-primary"
             />
+            <div className="-mt-1 text-right">
+              <Link to="/password-reset" className="text-sm text-text-secondary hover:underline">
+                비밀번호를 잊으셨나요?
+              </Link>
+            </div>
+            {notice && !error && <p className="text-sm text-accent-subtle-text">{notice}</p>}
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
