@@ -21,6 +21,12 @@ export function updateNickname(nickname: string): Promise<UserProfile> {
     .then((res) => res.data)
 }
 
+export function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  return apiClient
+    .patch('/api/users/me/password', { currentPassword, newPassword })
+    .then(() => undefined)
+}
+
 export function deleteAccount(): Promise<void> {
   return apiClient.delete('/api/users/me').then(() => undefined)
 }

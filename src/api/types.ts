@@ -20,6 +20,7 @@ export interface MyPageProfile {
   email: string
   profileImageUrl: string | null
   createdAt: string
+  provider: 'EMAIL' | 'GOOGLE' | 'KAKAO' | 'NAVER' | 'GITHUB'
 }
 
 export interface NicknameCheckResponse {

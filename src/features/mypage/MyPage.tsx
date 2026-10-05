@@ -5,6 +5,7 @@ import { fetchMyPage, deleteAccount } from '../../api/user'
 import { fetchWorkspaces } from '../../api/workspace'
 import { useAuthStore } from '../../stores/authStore'
 import { EditNicknameForm } from './EditNicknameForm'
+import { PasswordChangeForm } from './PasswordChangeForm'
 import { NotificationSettings } from '../notifications/NotificationSettings'
 
 export function MyPage(): ReactElement {
@@ -12,6 +13,7 @@ export function MyPage(): ReactElement {
   const queryClient = useQueryClient()
   const clear = useAuthStore((state) => state.clear)
   const [isEditing, setIsEditing] = useState(false)
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const { data, isLoading, isError } = useQuery({
@@ -115,6 +117,30 @@ export function MyPage(): ReactElement {
         <div>
           <span className="text-sm text-text-secondary">가입일</span>
           <p className="text-text-primary">{new Date(data.createdAt).toLocaleDateString()}</p>
+        </div>
+
+        <div>
+          <span className="text-sm text-text-secondary">비밀번호</span>
+          {data.provider !== 'EMAIL' ? (
+            <p className="text-sm text-text-secondary">
+              소셜 로그인 계정은 비밀번호를 변경할 수 없습니다.
+            </p>
+          ) : isChangingPassword ? (
+            <div className="mt-2">
+              <PasswordChangeForm onCancel={() => setIsChangingPassword(false)} />
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <p className="text-text-primary">••••••••</p>
+              <button
+                type="button"
+                onClick={() => setIsChangingPassword(true)}
+                className="text-sm text-accent-subtle-text"
+              >
+                변경
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
