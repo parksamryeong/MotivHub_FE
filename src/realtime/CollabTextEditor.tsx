@@ -6,16 +6,31 @@ import type * as Y from 'yjs'
 import type { Awareness } from 'y-protocols/awareness'
 import { useAuthStore } from '../stores/authStore'
 
-const CURSOR_COLORS = [
-  '#e11d48',
-  '#2563eb',
-  '#16a34a',
-  '#d97706',
-  '#7c3aed',
-  '#0891b2',
-  '#db2777',
-  '#65a30d',
+// dataviz 검증 범주형 팔레트(라이트 모드). 앞 3색은 모든 쌍 CVD 기준을 통과하고, 나머지는
+// 색만으로 구분이 어려울 수 있어 이름표가 식별자 역할을 한다.
+const CURSOR_PALETTE = [
+  '#2a78d6',
+  '#eb6834',
+  '#1baf7a',
+  '#eda100',
+  '#e87ba4',
+  '#008300',
+  '#4a3aa7',
+  '#e34948',
 ]
+
+function pickCursorColor(awareness: Awareness): string {
+  const used = new Set<string>()
+  awareness.getStates().forEach((state, clientId) => {
+    if (clientId === awareness.clientID) return
+    const color = (state as { user?: { color?: string } }).user?.color
+    if (color) used.add(color)
+  })
+  return (
+    CURSOR_PALETTE.find((color) => !used.has(color)) ??
+    CURSOR_PALETTE[awareness.clientID % CURSOR_PALETTE.length]
+  )
+}
 
 const editorTheme = EditorView.theme({
   '&': { fontSize: '0.875rem', backgroundColor: 'transparent', color: 'inherit' },
@@ -43,6 +58,7 @@ export function CollabTextEditor({
 
   useEffect(() => {
     if (!containerRef.current) return
+    let color: string | null = null
     const view = new EditorView({
       parent: containerRef.current,
       state: EditorState.create({
@@ -60,10 +76,11 @@ export function CollabTextEditor({
             focus: () => {
               const current = userRef.current
               if (!current) return
+              color ??= pickCursorColor(awareness)
               awareness.setLocalStateField('user', {
                 name: current.nickname,
-                color: CURSOR_COLORS[current.id % CURSOR_COLORS.length],
-                colorLight: `${CURSOR_COLORS[current.id % CURSOR_COLORS.length]}33`,
+                color,
+                colorLight: `${color}33`,
               })
             },
           }),
