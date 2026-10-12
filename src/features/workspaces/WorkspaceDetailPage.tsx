@@ -11,6 +11,7 @@ import {
 } from '../../api/workspace'
 import { getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
+import { CrownIcon, PencilIcon, UserMinusIcon } from '../../components/icons'
 import { InviteManagement } from './InviteManagement'
 
 export function WorkspaceDetailPage(): ReactElement {
@@ -134,9 +135,11 @@ export function WorkspaceDetailPage(): ReactElement {
                   setNameDraft(data.name)
                   setIsEditingName(true)
                 }}
-                className="text-sm text-accent-subtle-text hover:opacity-80"
+                aria-label="워크스페이스 이름 수정"
+                title="이름 수정"
+                className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary hover:bg-content-bg hover:text-text-primary"
               >
-                수정
+                <PencilIcon />
               </button>
             )}
           </>
@@ -178,9 +181,11 @@ export function WorkspaceDetailPage(): ReactElement {
                         transferMutation.mutate(member.user.id)
                       }
                     }}
-                    className="text-sm text-accent-subtle-text hover:opacity-80"
+                    aria-label="오너십 이전"
+                    title="오너십 이전"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary hover:bg-content-bg hover:text-text-primary"
                   >
-                    오너십 이전
+                    <CrownIcon />
                   </button>
                   <button
                     type="button"
@@ -189,9 +194,11 @@ export function WorkspaceDetailPage(): ReactElement {
                         kickMutation.mutate(member.user.id)
                       }
                     }}
-                    className="text-sm text-red-600 hover:text-red-700"
+                    aria-label="추방"
+                    title="추방"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-red-600 hover:bg-red-50"
                   >
-                    추방
+                    <UserMinusIcon />
                   </button>
                 </div>
               )}
@@ -203,52 +210,55 @@ export function WorkspaceDetailPage(): ReactElement {
       {isOwner && <InviteManagement workspaceId={workspaceId} />}
 
       <div className="flex flex-col gap-2 border-t border-card-border pt-4">
-        <button
-          type="button"
-          onClick={() => {
-            if (confirm('워크스페이스에서 나가시겠습니까?')) {
-              leaveMutation.mutate()
-            }
-          }}
-          disabled={leaveMutation.isPending}
-          className="self-start rounded-lg border border-card-border px-4 py-2 text-text-primary hover:bg-content-bg disabled:opacity-50"
-        >
-          나가기
-        </button>
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm('워크스페이스에서 나가시겠습니까?')) {
+                leaveMutation.mutate()
+              }
+            }}
+            disabled={leaveMutation.isPending}
+            className="rounded-lg border border-card-border px-4 py-2 text-text-primary hover:bg-content-bg disabled:opacity-50"
+          >
+            나가기
+          </button>
 
-        {isOwner &&
-          (showDeleteConfirm ? (
-            <div className="rounded-lg border border-red-300 p-3">
-              <p className="mb-2 text-sm text-text-primary">
-                정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-              </p>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => deleteMutation.mutate()}
-                  disabled={deleteMutation.isPending}
-                  className="rounded-lg bg-red-600 px-3 py-1 text-white hover:bg-red-700 disabled:opacity-50"
-                >
-                  {deleteMutation.isPending ? '처리 중...' : '삭제하기'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="rounded-lg px-3 py-1 text-text-primary hover:bg-content-bg"
-                >
-                  취소
-                </button>
-              </div>
-            </div>
-          ) : (
+          {isOwner && !showDeleteConfirm && (
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className="self-start rounded-lg border border-red-300 px-4 py-2 text-red-600 hover:bg-red-50 disabled:opacity-50"
+              className="rounded-lg border border-red-300 px-4 py-2 text-red-600 hover:bg-red-50 disabled:opacity-50"
             >
               워크스페이스 삭제
             </button>
-          ))}
+          )}
+        </div>
+
+        {isOwner && showDeleteConfirm && (
+          <div className="rounded-lg border border-red-300 p-3">
+            <p className="mb-2 text-sm text-text-primary">
+              정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => deleteMutation.mutate()}
+                disabled={deleteMutation.isPending}
+                className="rounded-lg bg-red-600 px-3 py-1 text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleteMutation.isPending ? '처리 중...' : '삭제하기'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="rounded-lg px-3 py-1 text-text-primary hover:bg-content-bg"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -41,6 +41,34 @@ export function TrashIcon({ className = 'h-4 w-4' }: { className?: string }): Re
   )
 }
 
+export function CrownIcon({ className = 'h-4 w-4' }: { className?: string }): ReactElement {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M3 15h14l-1-7-3.5 3L10 5l-2.5 6L4 8l-1 7Z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function UserMinusIcon({ className = 'h-4 w-4' }: { className?: string }): ReactElement {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      <circle cx="8" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.3" />
+      <path
+        d="M3 16c.5-3 2.5-4.5 5-4.5s4.5 1.5 5 4.5"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+      <path d="M13.5 9.5h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 export function LightbulbIcon({ className = 'h-3.5 w-3.5' }: { className?: string }): ReactElement {
   return (
     <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
