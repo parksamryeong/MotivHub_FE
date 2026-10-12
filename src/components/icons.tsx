@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react'
+import type { CSSProperties, ReactElement } from 'react'
 
 export function PencilIcon({ className = 'h-4 w-4' }: { className?: string }): ReactElement {
   return (
@@ -65,6 +65,26 @@ export function UserMinusIcon({ className = 'h-4 w-4' }: { className?: string })
         strokeLinecap="round"
       />
       <path d="M13.5 9.5h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function CursorPointerIcon({
+  className = 'h-4 w-4',
+  style,
+}: {
+  className?: string
+  style?: CSSProperties
+}): ReactElement {
+  return (
+    <svg viewBox="0 0 20 20" className={className} style={style} aria-hidden="true">
+      <path
+        d="M4 2.5 16 10l-5.2 1.1L13 16l-2 1-2.2-4.9L5 15.5 4 2.5Z"
+        fill="currentColor"
+        stroke="white"
+        strokeWidth="1"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }

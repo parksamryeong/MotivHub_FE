@@ -13,6 +13,7 @@ import { fetchTasks, updateTaskStatus } from '../../api/task'
 import { getErrorCode, getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import { useTopic } from '../../realtime/useTopic'
+import { LiveCursorLayer } from '../../realtime/LiveCursorLayer'
 import type { TaskBoardChangeMessage, TaskResponse, TaskStatus } from '../../api/types'
 import { BoardColumn } from './BoardColumn'
 import { WorkspaceFiles } from './WorkspaceFiles'
@@ -358,6 +359,11 @@ export function WorkspaceBoardPage(): ReactElement {
           onClose={() => setCreateStatus(null)}
         />
       )}
+
+      <LiveCursorLayer
+        topic={`/topic/workspaces/${workspaceId}/board/cursors`}
+        sendTo={`/app/workspaces/${workspaceId}/board/cursor`}
+      />
     </div>
   )
 }

@@ -18,6 +18,7 @@ import { getErrorCode, getErrorMessage } from '../../api/errors'
 import { useAuthStore } from '../../stores/authStore'
 import { PencilIcon } from '../../components/icons'
 import { useTopic } from '../../realtime/useTopic'
+import { LiveCursorLayer } from '../../realtime/LiveCursorLayer'
 import { CollabTextEditor } from '../../realtime/CollabTextEditor'
 import { useYjsField } from '../../realtime/useYjsField'
 import type {
@@ -514,6 +515,11 @@ export function TaskDetailPage(): ReactElement {
           </div>
         </div>
       </div>
+
+      <LiveCursorLayer
+        topic={`/topic/tasks/${taskId}/cursors`}
+        sendTo={`/app/tasks/${taskId}/cursor`}
+      />
     </div>
   )
 }

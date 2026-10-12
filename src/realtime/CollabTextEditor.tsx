@@ -5,19 +5,7 @@ import { yCollab } from 'y-codemirror.next'
 import type * as Y from 'yjs'
 import type { Awareness } from 'y-protocols/awareness'
 import { useAuthStore } from '../stores/authStore'
-
-// dataviz 검증 범주형 팔레트(라이트 모드). 앞 3색은 모든 쌍 CVD 기준을 통과하고, 나머지는
-// 색만으로 구분이 어려울 수 있어 이름표가 식별자 역할을 한다.
-const CURSOR_PALETTE = [
-  '#2a78d6',
-  '#eb6834',
-  '#1baf7a',
-  '#eda100',
-  '#e87ba4',
-  '#008300',
-  '#4a3aa7',
-  '#e34948',
-]
+import { CURSOR_PALETTE } from './cursorPalette'
 
 function pickCursorColor(awareness: Awareness): string {
   const used = new Set<string>()
