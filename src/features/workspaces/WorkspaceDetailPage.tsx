@@ -112,14 +112,14 @@ export function WorkspaceDetailPage(): ReactElement {
             <button
               type="submit"
               disabled={!nameDraft.trim() || renameMutation.isPending}
-              className="rounded-lg bg-action px-3 py-2 text-action-text disabled:opacity-50"
+              className="rounded-lg bg-action px-3 py-2 text-action-text hover:bg-action/90 disabled:opacity-50"
             >
               저장
             </button>
             <button
               type="button"
               onClick={() => setIsEditingName(false)}
-              className="rounded-lg px-3 py-2 text-text-primary"
+              className="rounded-lg px-3 py-2 text-text-primary hover:bg-content-bg"
             >
               취소
             </button>
@@ -134,7 +134,7 @@ export function WorkspaceDetailPage(): ReactElement {
                   setNameDraft(data.name)
                   setIsEditingName(true)
                 }}
-                className="text-sm text-accent-subtle-text"
+                className="text-sm text-accent-subtle-text hover:opacity-80"
               >
                 수정
               </button>
@@ -178,7 +178,7 @@ export function WorkspaceDetailPage(): ReactElement {
                         transferMutation.mutate(member.user.id)
                       }
                     }}
-                    className="text-sm text-accent-subtle-text"
+                    className="text-sm text-accent-subtle-text hover:opacity-80"
                   >
                     오너십 이전
                   </button>
@@ -189,7 +189,7 @@ export function WorkspaceDetailPage(): ReactElement {
                         kickMutation.mutate(member.user.id)
                       }
                     }}
-                    className="text-sm text-red-600"
+                    className="text-sm text-red-600 hover:text-red-700"
                   >
                     추방
                   </button>
@@ -211,7 +211,7 @@ export function WorkspaceDetailPage(): ReactElement {
             }
           }}
           disabled={leaveMutation.isPending}
-          className="self-start rounded-lg border border-card-border px-4 py-2 text-text-primary disabled:opacity-50"
+          className="self-start rounded-lg border border-card-border px-4 py-2 text-text-primary hover:bg-content-bg disabled:opacity-50"
         >
           나가기
         </button>
@@ -227,14 +227,14 @@ export function WorkspaceDetailPage(): ReactElement {
                   type="button"
                   onClick={() => deleteMutation.mutate()}
                   disabled={deleteMutation.isPending}
-                  className="rounded-lg bg-red-600 px-3 py-1 text-white disabled:opacity-50"
+                  className="rounded-lg bg-red-600 px-3 py-1 text-white hover:bg-red-700 disabled:opacity-50"
                 >
                   {deleteMutation.isPending ? '처리 중...' : '삭제하기'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="rounded-lg px-3 py-1 text-text-primary"
+                  className="rounded-lg px-3 py-1 text-text-primary hover:bg-content-bg"
                 >
                   취소
                 </button>
@@ -244,7 +244,7 @@ export function WorkspaceDetailPage(): ReactElement {
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className="self-start text-sm text-red-600"
+              className="self-start rounded-lg border border-red-300 px-4 py-2 text-red-600 hover:bg-red-50 disabled:opacity-50"
             >
               워크스페이스 삭제
             </button>
