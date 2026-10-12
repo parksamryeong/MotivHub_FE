@@ -16,6 +16,14 @@ export function fetchIssues(q?: string): Promise<IssueResponse[]> {
     .then((res) => res.data)
 }
 
+export function fetchMyIssues(params: {
+  workspaceId?: number
+  q?: string
+  sort?: 'newest' | 'oldest'
+}): Promise<IssueResponse[]> {
+  return apiClient.get<IssueResponse[]>('/api/issues/mine', { params }).then((res) => res.data)
+}
+
 export function fetchIssue(issueId: number): Promise<IssueResponse> {
   return apiClient.get<IssueResponse>(`/api/issues/${issueId}`).then((res) => res.data)
 }

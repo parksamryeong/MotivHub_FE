@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/workspaces', label: '워크스페이스' },
   { to: '/issues', label: '이슈 게시판' },
   { to: '/my-tasks', label: '내 할 일' },
+  { to: '/my-issues', label: '이슈관리' },
 ]
 
 export function AppLayout(): ReactElement {
