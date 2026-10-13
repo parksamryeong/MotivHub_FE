@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createWorkspace, fetchWorkspaces } from '../../api/workspace'
 import { getErrorMessage } from '../../api/errors'
 import { getRecentWorkspaceIds } from './recentWorkspaces'
+import { TASK_STATUS_LABELS } from './taskStatusLabels'
 import type { WorkspaceResponse } from '../../api/types'
 
 type RoleFilter = 'all' | 'owner' | 'member'
@@ -128,7 +129,7 @@ export function WorkspaceListPage(): ReactElement {
             </div>
             <div className="rounded-xl bg-card-bg p-4 text-center shadow-card">
               <p className="text-2xl font-bold text-text-primary">{summary.waiting}</p>
-              <p className="text-xs text-text-secondary">예정</p>
+              <p className="text-xs text-text-secondary">{TASK_STATUS_LABELS.WAITING}</p>
             </div>
             <div className="rounded-xl bg-card-bg p-4 text-center shadow-card">
               <p className="text-2xl font-bold text-text-primary">{summary.inProgress}</p>

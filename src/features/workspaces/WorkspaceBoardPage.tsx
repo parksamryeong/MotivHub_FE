@@ -25,7 +25,7 @@ import { recordRecentWorkspace } from './recentWorkspaces'
 type BoardView = 'BOARD' | 'CALENDAR'
 
 const COLUMNS: { status: Exclude<TaskStatus, 'EXPIRED'>; label: string; creatable: boolean }[] = [
-  { status: 'WAITING', label: '할 일', creatable: true },
+  { status: 'WAITING', label: '대기', creatable: true },
   { status: 'IN_PROGRESS', label: '진행 중', creatable: true },
   { status: 'DONE', label: '완료', creatable: false },
 ]
@@ -207,7 +207,7 @@ export function WorkspaceBoardPage(): ReactElement {
           <h1 className="flex-shrink-0 text-lg font-bold text-text-primary">{workspace.name}</h1>
           <div className="hidden h-6 w-px flex-shrink-0 bg-card-border sm:block" />
           <p className="flex-shrink-0 text-sm text-text-secondary">
-            할 일 <b className="font-semibold text-text-primary">{tasksFor('WAITING').length}</b>
+            대기 <b className="font-semibold text-text-primary">{tasksFor('WAITING').length}</b>
             <span className="mx-2 text-text-muted">·</span>
             진행 중{' '}
             <b className="font-semibold text-text-primary">{tasksFor('IN_PROGRESS').length}</b>

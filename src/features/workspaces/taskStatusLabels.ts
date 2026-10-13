@@ -1,7 +1,7 @@
 import type { TaskStatus } from '../../api/types'
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
-  WAITING: '할 일',
+  WAITING: '대기',
   IN_PROGRESS: '진행 중',
   DONE: '완료',
   EXPIRED: '만료',

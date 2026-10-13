@@ -10,7 +10,7 @@ type StatusTab = 'ALL' | 'WAITING' | 'IN_PROGRESS' | 'DONE'
 
 const TAB_LABELS: Record<StatusTab, string> = {
   ALL: '전체',
-  WAITING: '할 일',
+  WAITING: '대기',
   IN_PROGRESS: '진행 중',
   DONE: '완료',
 }
