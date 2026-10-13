@@ -32,6 +32,9 @@ export const PRIORITY_CHART_ORDER: TaskPriority[] = ['URGENT', 'HIGH', 'MEDIUM',
 
 export const PRIORITY_CHART_LABELS = TASK_PRIORITY_LABELS
 
-// 완료 추이 · 멤버 업무량은 카테고리 구분이 아니라 단일 값의 크기를 보여주는
-// 차트라, 진행률 바 등 앱 전역에서 이미 쓰는 accent 색 하나로 통일한다.
-export const SINGLE_SERIES_COLOR = '#14B8A6'
+// 완료 추이 · 멤버 업무량은 단일 값 크기를 보여주는 차트라 카테고리 구분은 필요
+// 없지만, 대시보드 전체가 초록/틸 한 색으로만 보이지 않도록 패널마다 dataviz
+// 검증 팔레트(STATUS_CHART_COLORS와 같은 8색 세트)에서 다른 쪽에 안 쓰인 색을
+// 하나씩 배정한다.
+export const MEMBER_WORKLOAD_COLOR = '#4a3aa7'
+export const COMPLETION_TREND_COLOR = '#eb6834'

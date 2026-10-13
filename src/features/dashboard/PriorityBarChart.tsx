@@ -20,7 +20,14 @@ export function PriorityBarChart({ data }: { data: DashboardPriorityCount[] }): 
       <h2 className="text-sm font-semibold text-text-primary">우선순위 분포</h2>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 24 }} barSize={22}>
-          <XAxis type="number" allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }} />
+          <XAxis
+            type="number"
+            domain={[0, 'dataMax']}
+            allowDecimals={false}
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }}
+          />
           <YAxis
             type="category"
             dataKey="label"

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { SINGLE_SERIES_COLOR } from './dashboardColors'
+import { MEMBER_WORKLOAD_COLOR } from './dashboardColors'
 import type { DashboardMemberWorkload } from '../../api/types'
 
 export function MemberWorkloadChart({ data }: { data: DashboardMemberWorkload[] }): ReactElement {
@@ -14,7 +14,14 @@ export function MemberWorkloadChart({ data }: { data: DashboardMemberWorkload[] 
       ) : (
         <ResponsiveContainer width="100%" height={Math.max(120, data.length * 36)}>
           <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24 }} barSize={20}>
-            <XAxis type="number" allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }} />
+            <XAxis
+              type="number"
+              domain={[0, 'dataMax']}
+              allowDecimals={false}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }}
+            />
             <YAxis
               type="category"
               dataKey="nickname"
@@ -30,7 +37,7 @@ export function MemberWorkloadChart({ data }: { data: DashboardMemberWorkload[] 
             />
             <Bar
               dataKey="count"
-              fill={SINGLE_SERIES_COLOR}
+              fill={MEMBER_WORKLOAD_COLOR}
               radius={[0, 10, 10, 0]}
               label={{ position: 'right', fontSize: 12, fill: 'var(--color-text-secondary)' }}
               animationDuration={500}
